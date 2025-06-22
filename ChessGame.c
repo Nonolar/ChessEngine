@@ -96,8 +96,16 @@ void FindSinglePawnCapture(enum Piece const *Board, int const *NewCoord, int *Ol
     }
 }
 
+
+bool IsEnPassant(enum Piece const *Board, int const *NewCoord, bool IsWhite) {
+    if (IsWhite) {
+        return *(Board + NewCoord[0] + (NewCoord[1] - 1 ) * 8) == B_PAWN_EN;
+    }else {
+        return *(Board + NewCoord[0] + (NewCoord[1] + 1) * 8) == W_PAWN_EN;
+    }
+}
 //Correct memory
-int FindPawnOnRank(enum Piece *Board, int NewColummn, int Rank, bool FindWhite) {
+int FindPawnOnRank(enum Piece const *Board, int NewColummn, int Rank, bool FindWhite) {
     if (FindWhite) {
         if (*(Board + Rank + (NewColummn - 1) * 8) == W_PAWN) {
             return NewColummn - 1;
@@ -144,14 +152,18 @@ bool PawnMove(enum Piece *Board, char move[4], bool WhitePlay) {
         return false;
     }
 
+    bool EnPassant = IsEnPassant(Board, NewCoord, WhitePlay);
+
     if (Capture && Simple) {
         FindSinglePawnCapture(Board, NewCoord, OrigCoord, WhitePlay);
     }else if (Capture && WhitePlay) {
         OrigCoord[0] = LetterToCoordinate(move[0]);
         OrigCoord[1] = NewCoord[1] - 1;
-    }else if (Capture && !WhitePlay) {
+    }else if (Capture) {
         OrigCoord[0] = LetterToCoordinate(move[0]);
         OrigCoord[1] = NewCoord[1] + 1;
+    }else if (EnPassant) {
+        FindSinglePawnCapture(Board, NewCoord, OrigCoord, WhitePlay);
     }else {
         OrigCoord[0] = LetterToCoordinate(move[0]);
         OrigCoord[1] = FindPawnOnRank(Board, NewCoord[1], OrigCoord[0], WhitePlay);
@@ -171,6 +183,9 @@ bool PawnMove(enum Piece *Board, char move[4], bool WhitePlay) {
 
     *(Board + OrigCoord[0] + OrigCoord[1] * 8) = EMPTY;
     *(Board + NewCoord[0] + NewCoord[1] * 8) = ToFind;
+    if (EnPassant && WhitePlay) {
+        *(Board + NewCoord[0] + OrigCoord[1] * 8) = EMPTY;
+    }
 
     return true;
 }

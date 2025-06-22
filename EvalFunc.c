@@ -9,6 +9,8 @@ bool isBlack(enum Piece piece) {
     switch (piece) {
         case B_PAWN:
             return true;
+        case B_PAWN_EN:
+            return true;
         case B_ROOK:
             return true;
         case B_KNIGHT:

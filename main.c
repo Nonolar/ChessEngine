@@ -41,7 +41,7 @@ char GetCharOfPiece(enum Piece piece) {
         case B_PAWN:
             return 'P';
         case B_PAWN_EN:
-            return 'P';
+            return 'E';
         case B_ROOK:
             return 'R';
         case B_KNIGHT:
@@ -55,7 +55,7 @@ char GetCharOfPiece(enum Piece piece) {
         case W_PAWN:
             return 'p';
         case W_PAWN_EN:
-            return 'p';
+            return 'e';
         case W_ROOK:
             return 'r';
         case W_KNIGHT:
@@ -75,11 +75,11 @@ char GetCharOfPiece(enum Piece piece) {
     }
 }
 
-void RemoveAllEnPeassant(enum Piece *Board) {
+void RemoveEnPassant(enum Piece *Board, bool White) {
     for (int i = 0; i < 64; i++) {
-        if (Board[i] == B_PAWN_EN) {
+        if (Board[i] == B_PAWN_EN && !White) {
             Board[i] = B_PAWN;
-        }else if (Board[i] == W_PAWN_EN) {
+        }else if (Board[i] == W_PAWN_EN && White) {
             Board[i] = W_PAWN;
         }
     }
@@ -142,21 +142,21 @@ int main(void) {
     bool DoBlackRound = true;
     while (!GameIsOver(Board)) {
         if (DoWhiteRound) {
+            RemoveEnPassant(Board, true);
             DoBlackRound = PlayOneRound(Board, true);
             RenderBoard(Board);
             evauluation = Evaluate(Board);
             printf("Evaluation: %f\n", evauluation);
         }
         if (DoBlackRound) {
+            RemoveEnPassant(Board, false);
             DoWhiteRound =  PlayOneRound(Board, false);
             RenderBoard(Board);
             evauluation = Evaluate(Board);
             printf("Evaluation: %f\n", evauluation);
         }
 
-        if (DoWhiteRound && DoBlackRound) {
-            RemoveAllEnPeassant(Board);
-        }
+
     }
 
     return 0;
