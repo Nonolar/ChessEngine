@@ -109,7 +109,7 @@ int FindPawnOnRank(enum Piece const *Board, int NewColummn, int Rank, bool FindW
     if (FindWhite) {
         if (*(Board + Rank + (NewColummn - 1) * 8) == W_PAWN) {
             return NewColummn - 1;
-        }else if (*(Board + Rank + (NewColummn - 2) * 8) == W_PAWN && NewColummn - 2 == 1) {
+        }else if (*(Board + Rank + (NewColummn - 2) * 8) == W_PAWN && NewColummn - 2 == 1 && *(Board + Rank + (NewColummn - 1) * 8) == EMPTY) {
             return NewColummn - 2;
         }else {
             return -999;
@@ -117,7 +117,7 @@ int FindPawnOnRank(enum Piece const *Board, int NewColummn, int Rank, bool FindW
     }else {
         if (*(Board + Rank + (NewColummn + 1) * 8) == B_PAWN) {
             return NewColummn + 1;
-        }else if (*(Board + Rank + (NewColummn + 2) * 8) == B_PAWN && NewColummn + 2 == 6) {
+        }else if (*(Board + Rank + (NewColummn + 2) * 8) == B_PAWN && NewColummn + 2 == 6 && *(Board + Rank + (NewColummn + 1) * 8) == EMPTY) {
             return NewColummn + 2;
         }else {
             return -999;

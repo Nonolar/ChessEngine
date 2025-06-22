@@ -29,6 +29,8 @@ int GetPieceScore(enum Piece piece) {
     switch (piece) {
         case B_PAWN:
             return 1;
+        case B_PAWN_EN:
+            return 1;
         case B_ROOK:
             return 5;
         case B_KNIGHT:
@@ -40,6 +42,8 @@ int GetPieceScore(enum Piece piece) {
         case B_KING:
             return 999;
         case W_PAWN:
+            return 1;
+        case W_PAWN_EN:
             return 1;
         case W_ROOK:
             return 5;
@@ -64,7 +68,7 @@ float getEvalScorePiece(enum Piece *piece) {
 
     if (isBlack(*piece)) {
         float Score = (float)GetPieceScore(*piece);
-        return Score * -0.5f;
+        return Score * -1.0f;
     }
 
     return (float)GetPieceScore(*piece);
@@ -77,6 +81,8 @@ float CountPieces(enum Piece *Board) {
             result += getEvalScorePiece((Board + i * 8 + j));
         }
     }
+
+    return result;
 }
 
 float Evaluate(enum Piece *Board) {

@@ -1,2 +1,2 @@
-1. For every enemy -0.5 * Piece score
+1. For every enemy -Piece score
 2. For every of your pieces +Piece score
