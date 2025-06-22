@@ -111,8 +111,8 @@ bool PlayOneRound(enum Piece *Board, bool WhiteRound) {
     }
 
 
-    char Move[4];
-    scanf("%4s", Move);
+    char Move[5];
+    scanf("%5s", Move);
     system("clear");
 
     if (!ProcessMove(Board, Move, WhiteRound)) {

@@ -44,8 +44,11 @@ int LetterToCoordinate(char Letter) {
 bool CheckFinalValidity(int NewCoord[], int OldCoord[], enum Types PieceType) {
     switch (PieceType) {
         case PAWN:
-            bool Valid = (NewCoord[0] - OldCoord[0] == 0 && abs(NewCoord[1] - OldCoord[1]) <= 2) || (abs(NewCoord[0] - OldCoord[0]) == 1 && abs(NewCoord[1] - OldCoord[1]) == 1);
-            return Valid;
+            bool ValidPawn = (NewCoord[0] - OldCoord[0] == 0 && abs(NewCoord[1] - OldCoord[1]) <= 2) || (abs(NewCoord[0] - OldCoord[0]) == 1 && abs(NewCoord[1] - OldCoord[1]) == 1);
+            return ValidPawn;
+        case ROOK:
+            bool ValidRook = (NewCoord[0] - OldCoord[0] == 0 || NewCoord[1] - OldCoord[1] == 0);
+            return ValidRook;
     }
 }
 
@@ -69,7 +72,7 @@ bool CharIsPiece(char const C) {
     }
 }
 
-//Correct memory
+
 void FindSinglePawnCapture(enum Piece const *Board, int const *NewCoord, int *OldCoord, bool IsWhite) {
     int NewCoord0 = *NewCoord;
     int NewCoord1 = *(NewCoord + 1);
@@ -104,7 +107,7 @@ bool IsEnPassant(enum Piece const *Board, int const *NewCoord, bool IsWhite) {
         return *(Board + NewCoord[0] + (NewCoord[1] + 1) * 8) == W_PAWN_EN;
     }
 }
-//Correct memory
+
 int FindPawnOnRank(enum Piece const *Board, int NewColummn, int Rank, bool FindWhite) {
     if (FindWhite) {
         if (*(Board + Rank + (NewColummn - 1) * 8) == W_PAWN) {
@@ -125,7 +128,7 @@ int FindPawnOnRank(enum Piece const *Board, int NewColummn, int Rank, bool FindW
     }
 }
 
-//Correct memory
+
 bool PawnMove(enum Piece *Board, char move[4], bool WhitePlay) {
     int OrigCoord[2] = {-999, -999};
     int NewCoord[2] = {-999, -999};
@@ -190,8 +193,113 @@ bool PawnMove(enum Piece *Board, char move[4], bool WhitePlay) {
     return true;
 }
 
-bool PieceSwitch(enum Piece *Board, char move[4], bool WhitePlay) {
+bool RookMoveNoObstacle(enum Piece *Board, int *NewCoord, int *OldCoord) {
+    if (NewCoord[0] == OldCoord[0]) {
+        int Direction = NewCoord[1] - OldCoord[1];
+        Direction = Direction > 0 ? 1 : -1;
+        for (int i = OldCoord[1] + Direction; i != NewCoord[1]; i += Direction) {
+            if (*(Board + OldCoord[0] + i * 8) != EMPTY) {
 
+                return false;
+            }
+        }
+    }else {
+        int Direction = NewCoord[0] - OldCoord[0];
+        Direction = Direction > 0 ? 1 : -1;
+        for (int i = OldCoord[0] + Direction; i != NewCoord[0]; i += Direction) {
+            if (*(Board + OldCoord[1] * 8+ i) != EMPTY) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+int SearchFileForRook(enum Piece *Board, int File, bool SearchWhite) {
+    enum Piece ToFind = SearchWhite ? W_ROOK : B_ROOK;
+    for (int i = 0; i < 8; i++) {
+        if (*(Board + File + i * 8) == ToFind) {
+            return i;
+        }
+    }
+    return -999;
+}
+
+int SearchRankForRook(enum Piece *Board, int Rank, bool SearchWhite) {
+    enum Piece ToFind = SearchWhite ? W_ROOK : B_ROOK;
+    for (int i = 0; i < 8; i++) {
+        if (*(Board + Rank  * 8 + i) == ToFind) {
+            return i;
+        }
+    }
+    return -999;
+}
+
+bool RookMove(enum Piece *Board, char move[5], bool WhitePlay) {
+    int OrigCoord[2] = {-999, -999};
+    int NewCoord[2] = {-999, -999};
+
+    bool const Simple = isdigit(move[2]) && !isdigit(move[4]);
+    bool CompleteInfo = !Simple && !isdigit(move[3]);
+
+    if (Simple) {
+        NewCoord[0] = LetterToCoordinate(move[1]);
+        NewCoord[1] = (int)(move[2] - '0') - 1;
+    }else if (isdigit(move[3])) {
+        OrigCoord[0] = LetterToCoordinate(move[1]);
+        NewCoord[0] = LetterToCoordinate(move[2]);
+        NewCoord[1] = (int)(move[3] - '0') - 1;
+    }else {
+        OrigCoord[0] = LetterToCoordinate(move[1]);
+        OrigCoord[1] = (int)(move[2] - '0') - 1;
+        NewCoord[0] = LetterToCoordinate(move[3]);
+        NewCoord[1] = (int)(move[4] - '0') - 1;
+    }
+
+    enum Piece ActivePiece = W_ROOK;
+    if (!WhitePlay) {
+        ActivePiece = B_ROOK;
+    }
+
+    bool Capture = *(Board + NewCoord[0] + NewCoord[1] * 8) != EMPTY;
+    if (Capture && SameColor(WhitePlay,* (Board + NewCoord[0] + NewCoord[1] * 8) )) {
+        return false;
+    }
+
+    if (CompleteInfo && CheckFinalValidity(NewCoord, OrigCoord, ROOK) && RookMoveNoObstacle(Board, &NewCoord[0], &OrigCoord[0])) {
+        *(Board + NewCoord[0] + NewCoord[1] * 8) = ActivePiece;
+        *(Board + OrigCoord[0] + OrigCoord[1] * 8) = EMPTY;
+        return true;
+    }else if (CompleteInfo) {
+        return false;
+    }
+
+    if (!Simple) {
+        OrigCoord[1] = SearchRankForRook(Board, OrigCoord[1], WhitePlay);
+    }else if (SearchRankForRook(Board, NewCoord[1], WhitePlay) == -999) {
+        OrigCoord[1] = SearchFileForRook(Board, NewCoord[0], WhitePlay);
+        OrigCoord[0] = NewCoord[0];
+    }else {
+        OrigCoord[1] = NewCoord[1];
+        OrigCoord[0] = SearchRankForRook(Board, NewCoord[1], WhitePlay);
+    }
+
+    if (!CheckFinalValidity(NewCoord, OrigCoord, ROOK) || !RookMoveNoObstacle(Board, &NewCoord[0], &OrigCoord[0])) {
+        return false;
+    }
+
+    *(Board + NewCoord[0] + NewCoord[1] * 8) = ActivePiece;
+    *(Board + OrigCoord[0] + OrigCoord[1] * 8) = EMPTY;
+
+    return true;
+}
+
+bool PieceSwitch(enum Piece *Board, char move[5], bool WhitePlay) {
+    switch (*move) {
+        case 'R':
+            return RookMove(Board, move, WhitePlay);
+    }
 }
 
 
