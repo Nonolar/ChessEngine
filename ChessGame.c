@@ -5,7 +5,7 @@
 #include "ChessGame.h"
 #include "Pieces/Pawn.h"
 #include "Pieces/Rook.h"
-#include <ctype.h>
+#include "Pieces/Bishop.h"
 
 
 
@@ -33,17 +33,6 @@ int LetterToCoordinate(char Letter) {
     }
 }
 
-bool CheckFinalValidity(int NewCoord[], int OldCoord[], enum Types PieceType) {
-    switch (PieceType) {
-        case PAWN:
-            bool ValidPawn = (NewCoord[0] - OldCoord[0] == 0 && abs(NewCoord[1] - OldCoord[1]) <= 2) || (abs(NewCoord[0] - OldCoord[0]) == 1 && abs(NewCoord[1] - OldCoord[1]) == 1);
-            return ValidPawn;
-        case ROOK:
-            bool ValidRook = (NewCoord[0] - OldCoord[0] == 0 || NewCoord[1] - OldCoord[1] == 0);
-            return ValidRook;
-    }
-}
-
 bool SameColor(bool White, enum Piece Comparand) {
     if (White && !isBlack(Comparand)) {
         return true;
@@ -56,6 +45,26 @@ bool SameColor(bool White, enum Piece Comparand) {
     return false;
 }
 
+bool IsLegitCoordinate(int *Coordinate) {
+    if (Coordinate[0] == INVALID_COORDINATE || Coordinate[1] == INVALID_COORDINATE) {
+        return false;
+    }
+
+    if (Coordinate[0] < 0 || Coordinate[1] < 0 ) {
+        return false;
+    }
+
+    if (Coordinate[0] > 7 || Coordinate[1] > 7) {
+        return false;
+    }
+
+    return true;
+}
+
+bool IsTileLight(int Coordinate[]) {
+    return !(Coordinate[0] % 2 == Coordinate[1] % 2);
+}
+
 bool CharIsPiece(char const C) {
     if (C != 'K' && C != 'Q' && C != 'R' && C != 'B' && C != 'N') {
         return false;
@@ -64,12 +73,12 @@ bool CharIsPiece(char const C) {
     }
 }
 
-
-
 bool PieceSwitch(enum Piece *Board, char move[5], bool WhitePlay) {
     switch (*move) {
         case 'R':
             return DoRookMove(Board, move, WhitePlay);
+        case 'B':
+            return DoBishopMove(Board, move, WhitePlay);
     }
 }
 

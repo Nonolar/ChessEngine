@@ -59,7 +59,7 @@ bool DoRookMove(enum Piece *Board, char *move, bool WhitePlay) {
     int NewCoord[2] = {INVALID_COORDINATE, INVALID_COORDINATE};
 
     bool const Simple = isdigit(move[2]) && !isdigit(move[4]);
-    bool CompleteInfo = !Simple && !isdigit(move[3]);
+    bool const CompleteInfo = !Simple && !isdigit(move[3]);
 
     if (Simple) {
         NewCoord[0] = LetterToCoordinate(move[1]);
@@ -80,7 +80,7 @@ bool DoRookMove(enum Piece *Board, char *move, bool WhitePlay) {
         ActivePiece = B_ROOK;
     }
 
-    bool Capture = *(Board + NewCoord[0] + NewCoord[1] * 8) != EMPTY;
+    bool const Capture = *(Board + NewCoord[0] + NewCoord[1] * 8) != EMPTY;
     if (Capture && SameColor(WhitePlay,* (Board + NewCoord[0] + NewCoord[1] * 8) )) {
         return false;
     }

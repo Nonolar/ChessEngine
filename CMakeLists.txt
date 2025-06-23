@@ -12,4 +12,6 @@ add_executable(ChessEngine main.c
         Pieces/Pawn.c
         Pieces/Rook.h
         Pieces/Rook.c
+        Pieces/Bishop.h
+        Pieces/Bishop.c
 )
