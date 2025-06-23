@@ -276,7 +276,7 @@ bool RookMove(enum Piece *Board, char move[5], bool WhitePlay) {
     }
 
     if (!Simple) {
-        OrigCoord[1] = SearchRankForRook(Board, OrigCoord[1], WhitePlay);
+        OrigCoord[1] = SearchFileForRook(Board, OrigCoord[0], WhitePlay);
     }else if (SearchRankForRook(Board, NewCoord[1], WhitePlay) == -999) {
         OrigCoord[1] = SearchFileForRook(Board, NewCoord[0], WhitePlay);
         OrigCoord[0] = NewCoord[0];

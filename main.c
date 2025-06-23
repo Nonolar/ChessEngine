@@ -41,7 +41,7 @@ char GetCharOfPiece(enum Piece piece) {
         case B_PAWN:
             return 'P';
         case B_PAWN_EN:
-            return 'E';
+            return 'P';
         case B_ROOK:
             return 'R';
         case B_KNIGHT:
@@ -55,7 +55,7 @@ char GetCharOfPiece(enum Piece piece) {
         case W_PAWN:
             return 'p';
         case W_PAWN_EN:
-            return 'e';
+            return 'p';
         case W_ROOK:
             return 'r';
         case W_KNIGHT:
@@ -114,6 +114,8 @@ bool PlayOneRound(enum Piece *Board, bool WhiteRound) {
     char Move[5];
     scanf("%5s", Move);
     system("clear");
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 
     if (!ProcessMove(Board, Move, WhiteRound)) {
         printf("Invalid move %s\n", Move);
