@@ -24,7 +24,7 @@ bool CompleteMove(enum Piece *Board, int *OrigCoord, int *NewCoord, enum Piece A
 }
 
 void SearchQuadrant(enum Piece const *Board, int const *NewCoord, enum Piece const ToFind, int const *changeInDir, int *SearchCoordinate) {
-    printf("X: %d Y: %d ", changeInDir[0], changeInDir[1]);
+
     SearchCoordinate[0] = NewCoord[0];
     SearchCoordinate[1] = NewCoord[1];
     int Steps = 0;
@@ -62,7 +62,6 @@ int *FindBishop(enum Piece *Board, int *NewCoord, bool White, int PriorityFile) 
         }
 
         if (PriorityFile == BishopCoord[0]) {
-            printf("%d", FoundBishop[0]);
             free(FoundBishop);
             return BishopCoord;
         }
