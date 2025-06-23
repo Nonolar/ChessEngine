@@ -8,4 +8,8 @@ add_executable(ChessEngine main.c
         EvalFunc.c
         ChessGame.h
         ChessGame.c
+        Pieces/Pawn.h
+        Pieces/Pawn.c
+        Pieces/Rook.h
+        Pieces/Rook.c
 )

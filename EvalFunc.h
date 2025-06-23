@@ -1,7 +1,3 @@
-//
-// Created by noel on 2025-06-22.
-//
-
 #ifndef EVALFUNC_H
 #define EVALFUNC_H
 #pragma once

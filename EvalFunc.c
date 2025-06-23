@@ -1,6 +1,3 @@
-//
-// Created by noel on 2025-06-22.
-//
 #include <stdio.h>
 #include <stdbool.h>
 #include "EvalFunc.h"
