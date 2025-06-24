@@ -12,8 +12,25 @@ bool ConfirmMove(int *OrigCoord, int *NewCoord) {
     return (DiffFile == DiffRank);
 }
 
+bool NoObstacle(int const *OrigCoord, int const *NewCoord, enum Piece const *Board) {
+    int const Distance = abs(OrigCoord[0] - NewCoord[0]);
+    int *move = malloc(sizeof(int) * 2);
+    move[0] = NewCoord[0] - OrigCoord[0] < 0 ? -1 : 1;
+    move[1] = NewCoord[1] - OrigCoord[1] < 0 ? -1 : 1;
+
+    for (int i = 1; i < Distance; i++) {
+        if (*(Board + (OrigCoord[0] + i * move[0]) + (OrigCoord[1] + i * move[1]) * 8) != EMPTY){
+            free(move);
+            return false;
+        }
+    }
+    free(move);
+    return true;
+}
+
+
 bool CompleteMove(enum Piece *Board, int *OrigCoord, int *NewCoord, enum Piece ActivePiece) {
-    if (!ConfirmMove(OrigCoord, NewCoord)) {
+    if (!ConfirmMove(OrigCoord, NewCoord) || !NoObstacle(OrigCoord, NewCoord, Board)) {
         return false;
     }
 
