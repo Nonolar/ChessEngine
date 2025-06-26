@@ -6,6 +6,8 @@
 #include "Pieces/Pawn.h"
 #include "Pieces/Rook.h"
 #include "Pieces/Bishop.h"
+#include "Pieces/Queen.h"
+#include "Pieces/King.h"
 
 
 
@@ -74,11 +76,16 @@ bool CharIsPiece(char const C) {
 }
 
 bool PieceSwitch(enum Piece *Board, char move[5], bool WhitePlay) {
+
     switch (*move) {
         case 'R':
             return DoRookMove(Board, move, WhitePlay);
         case 'B':
             return DoBishopMove(Board, move, WhitePlay);
+        case 'Q':
+            return DoQueenMove(Board, move, WhitePlay);
+        case 'K':
+            return DoKingMove(Board, move, WhitePlay);
     }
 }
 

@@ -18,7 +18,7 @@ enum Piece {
     W_PAWN_EN,
     EMPTY
 };
-
+bool SquareUnderAttack(enum Piece const *board, int const *Coord);
 float Evaluate(enum Piece *Board);
 bool isBlack(enum Piece piece);
 #endif //EVALFUNC_H

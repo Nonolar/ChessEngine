@@ -1,6 +1,5 @@
 #ifndef BISHOP_H
 #define BISHOP_H
-#define NOT_FOUND -900
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../EvalFunc.h"

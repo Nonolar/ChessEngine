@@ -1,6 +1,7 @@
 #ifndef CHESSGAME_H
 #define CHESSGAME_H
 #define INVALID_COORDINATE -999
+#define NOT_FOUND -900
 #define SIDE_lENGHT 8
 #include <stdbool.h>
 #include "EvalFunc.h"

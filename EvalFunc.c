@@ -2,6 +2,11 @@
 #include <stdbool.h>
 #include "EvalFunc.h"
 
+bool SquareUnderAttack(enum Piece const *board, int const *Coord) {
+    //TODO
+    return false;
+}
+
 bool isBlack(enum Piece piece) {
     switch (piece) {
         case B_PAWN:

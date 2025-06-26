@@ -91,7 +91,12 @@ void RenderBoard(enum Piece *Board) {
         printf("+-+-+-+-+-+-+-+-+\n");
         for (int j = 0; j < 8; j++) {
             if (isBlack(*(Board + i * 8 + j))) {
-                printf("|" ANSI_COLOR_RED "%c" ANSI_COLOR_RESET, GetCharOfPiece(*(Board + i * 8 + j)));
+                #ifdef _WIN32:
+                    printf("|%c", GetCharOfPiece(*(Board + i * 8 + j)));
+                #else:
+                                printf("|" ANSI_COLOR_RED "%c" ANSI_COLOR_RESET , GetCharOfPiece(*(Board + i * 8 + j)));
+                #endif
+
             }else {
                 printf("|%c", GetCharOfPiece(*(Board + i * 8 + j)));
             }
@@ -113,7 +118,7 @@ bool PlayOneRound(enum Piece *Board, bool WhiteRound) {
 
     char Move[5];
     scanf("%5s", Move);
-    system("clear");
+    //system("clear");
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 
@@ -126,6 +131,7 @@ bool PlayOneRound(enum Piece *Board, bool WhiteRound) {
 }
 
 int main(void) {
+    setbuf(stdout, 0);
     enum Piece *Board = malloc(sizeof(enum Piece) * 64);
     //malloc(64*sizeof(enum Piece))
     for (int i = 0; i < 8; i++) {
