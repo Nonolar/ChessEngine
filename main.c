@@ -3,6 +3,7 @@
 
 #include "ChessGame.h"
 #include "EvalFunc.h"
+#include "Pieces/Bishop.h"
 
 #define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_RESET "\x1b[0m"
@@ -45,6 +46,8 @@ char GetCharOfPiece(enum Piece piece) {
             return 'P';
         case B_ROOK:
             return 'R';
+        case B_ROOK_C:
+            return 'R';
         case B_KNIGHT:
             return 'N';
         case B_BISHOP:
@@ -60,6 +63,8 @@ char GetCharOfPiece(enum Piece piece) {
         case W_PAWN_EN:
             return 'p';
         case W_ROOK:
+            return 'r';
+        case W_ROOK_C:
             return 'r';
         case W_KNIGHT:
             return 'n';
@@ -150,6 +155,9 @@ int main(void) {
     RenderBoard(Board);
     float evauluation = Evaluate(Board);
     printf("Evaluation: %f\n", evauluation);
+    int Coord[2] = {2, 0};
+    int *Integer = malloc(sizeof(int));
+
 
     bool DoWhiteRound = true;
     bool DoBlackRound = true;
@@ -169,7 +177,7 @@ int main(void) {
             printf("Evaluation: %f\n", evauluation);
         }
 
-
+        GetBishopMoves(Board, Coord, Integer);
     }
 
     return 0;
