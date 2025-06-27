@@ -8,6 +8,7 @@
 #include "Pieces/Bishop.h"
 #include "Pieces/Queen.h"
 #include "Pieces/King.h"
+#include "Pieces/Knight.h"
 
 
 
@@ -86,6 +87,8 @@ bool PieceSwitch(enum Piece *Board, char move[5], bool WhitePlay) {
             return DoQueenMove(Board, move, WhitePlay);
         case 'K':
             return DoKingMove(Board, move, WhitePlay);
+        case 'N':
+            return DoKnightMove(Board, move, WhitePlay);
     }
 }
 
