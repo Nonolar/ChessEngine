@@ -9,40 +9,32 @@
 
 void InitiateBoard(enum Piece *Board) {
     *Board = W_ROOK_C;
-    /*
     *(Board + 1) = W_KNIGHT;
     *(Board + 2) = W_BISHOP;
     *(Board + 3) = W_QUEEN;
-    */
     *(Board + 4) = W_KING_C;
-    /*
     *(Board + 5) = W_BISHOP;
     *(Board + 6) = W_KNIGHT;
-    */
     *(Board + 7) = W_ROOK_C;
 
     *(Board + 56) = B_ROOK_C;
-    /*
     *(Board + 57) = B_KNIGHT;
     *(Board + 58) = B_BISHOP;
     *(Board + 59) = B_QUEEN;
-    */
     *(Board + 60) = B_KING_C;
-    /*
     *(Board + 61) = B_BISHOP;
     *(Board + 62) = B_KNIGHT;
-    */
     *(Board + 63) = B_ROOK_C;
 
-    /*
+
     for (int i = 0; i < 8; i++) {
         *(Board + i + 8) = W_PAWN;
         *(Board + i + 48) = B_PAWN;
 
     }
-    */
 
-    *(Board + 2 + 6 * 8) = W_PAWN;
+
+
 }
 
 char GetCharOfPiece(enum Piece piece) {
