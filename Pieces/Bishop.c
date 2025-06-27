@@ -30,7 +30,7 @@ bool NoObstacle(int const *OrigCoord, int const *NewCoord, enum Piece const *Boa
 
 
 bool CompleteMove(enum Piece *Board, int *OrigCoord, int *NewCoord, enum Piece ActivePiece) {
-    if (!ConfirmMove(OrigCoord, NewCoord) || !NoObstacle(OrigCoord, NewCoord, Board)) {
+    if (!ConfirmMove(OrigCoord, NewCoord) || !NoObstacle(OrigCoord, NewCoord, Board) || !IsLegitCoordinate(NewCoord)) {
         return false;
     }
 

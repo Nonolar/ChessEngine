@@ -15,11 +15,15 @@ bool isBlack(enum Piece piece) {
             return true;
         case B_ROOK:
             return true;
+        case B_ROOK_C:
+            return true;
         case B_KNIGHT:
             return true;
         case B_BISHOP:
             return true;
         case B_KING:
+            return true;
+        case B_KING_C:
             return true;
         case B_QUEEN:
             return true;

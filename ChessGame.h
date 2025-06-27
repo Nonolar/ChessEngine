@@ -15,7 +15,7 @@ enum Types {
     QUEEN,
     KING,
 };
-
+enum Piece LetterToPiece(char letter, bool White);
 int LetterToCoordinate(char letter);
 bool IsLegitCoordinate(int *Coordinate);
 bool IsTileLight(int Coordinate[]);

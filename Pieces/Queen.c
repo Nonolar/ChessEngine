@@ -56,8 +56,8 @@ void SearchPart(enum Piece const *Board, int const *NewCoord, enum Piece const T
 
 int *FindQueen(enum Piece const *board, int const *NewCoord, enum Piece const ToFind, int PriorityFile) {
     int *FoundLocation = malloc(sizeof(int) * 2);
-    FoundLocation[0] = NOT_FOUND;
-    FoundLocation[1] = NOT_FOUND;
+    FoundLocation[0] = INVALID_COORDINATE;
+    FoundLocation[1] = INVALID_COORDINATE;
 
     int SearchLocation[] = {NewCoord[0], NewCoord[1], 0};
 
@@ -101,6 +101,10 @@ bool DoQueenMove(enum Piece *board, char const *move, bool const isWhite){
         OrigCoord[1] = (int)(move[2] - '0') - 1;
         NewCoord[0] = LetterToCoordinate(move[3]);
         NewCoord[1] = (int)(move[4] - '0') - 1;
+    }
+
+    if (!IsLegitCoordinate(NewCoord)) {
+        return false;
     }
 
     bool const Capture = *(board + NewCoord[0] + NewCoord[1] * 8) != EMPTY;

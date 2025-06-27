@@ -27,13 +27,14 @@ int *FindKing(enum Piece *board, int *NewCoord, bool isWhite) {
     KingCoordinate[1] = INVALID_COORDINATE;
 
     enum Piece ToFind = isWhite ? W_KING : B_KING;
+    enum Piece AlternativeToFind = isWhite ? W_KING_C : B_KING_C;
 
     int const SearchPatterns[16] = {-1, -1, 0, -1, 1, -1, 1, 0, 1, 1, 0, 1, -1, 1, -1, 0};
 
     for (int i = 0; i < 8; i++) {
         KingCoordinate[0] = NewCoord[0] + SearchPatterns[i * 2];
         KingCoordinate[1] = NewCoord[1] + SearchPatterns[i * 2 + 1];
-        if (IsLegitCoordinate(KingCoordinate) && *(board + KingCoordinate[0] + KingCoordinate[1] * SIDE_lENGHT) == ToFind) {
+        if (IsLegitCoordinate(KingCoordinate) && (*(board + KingCoordinate[0] + KingCoordinate[1] * 8) == ToFind || (*(board + KingCoordinate[0] + KingCoordinate[1] * 8) == AlternativeToFind))) {
             return KingCoordinate;
         }
     }
@@ -65,6 +66,10 @@ bool DoKingMove(enum Piece *board, char const *move, bool const isWhite) {
         NewCoord[1] = (int)(move[4] - '0') - 1;
     }
 
+    if (!IsLegitCoordinate(NewCoord)) {
+        return false;
+    }
+
     bool const Capture = *(board + NewCoord[0] + NewCoord[1] * 8) != EMPTY;
 
     if (Capture && SameColor(isWhite, *(board + NewCoord[0] + NewCoord[1] * 8))) {
@@ -85,4 +90,79 @@ bool DoKingMove(enum Piece *board, char const *move, bool const isWhite) {
     }
 
     return FinishMove(board, OrigCoord, NewCoord, isWhite);
+}
+
+bool QueenSideCastle(enum Piece *board, bool isWhite) {
+    int const Rank = isWhite ? 0 : 7;
+    int const CoordRank = Rank * SIDE_lENGHT;
+
+    int Coord[2] = {0, Rank};
+
+    for (int i = 0; i < 3; i++) {
+        Coord[0] = i + 1;
+        if (*(board + Coord[0] + CoordRank) != EMPTY || SquareUnderAttack(board, Coord)) {
+            return false;
+        }
+    }
+
+    enum Piece const ROOK = isWhite ? W_ROOK_C : B_ROOK_C;
+    enum Piece const NEW_ROOK = isWhite ? W_ROOK : B_ROOK;
+    enum Piece const KING = isWhite ? W_KING : B_KING;
+
+    if (*(board + 0 + CoordRank) != ROOK) {
+        return false;
+    }
+
+    *(board + 0 + CoordRank) = EMPTY;
+    *(board + 2 + CoordRank) = KING;
+    *(board + 3 + CoordRank) = NEW_ROOK;
+    *(board + 4 + CoordRank) = EMPTY;
+
+    return true;
+}
+
+bool KingSideCastle(enum Piece *board, bool isWhite) {
+    int const Rank = isWhite ? 0 : 7;
+    int const CoordRank = Rank * SIDE_lENGHT;
+
+    int Coord[2] = {0, Rank};
+
+    for (int i = 0; i < 2; i++) {
+        Coord[0] = i + 5;
+        if (*(board + Coord[0] + CoordRank) != EMPTY || SquareUnderAttack(board, Coord)) {
+            return false;
+        }
+    }
+
+    enum Piece const ROOK = isWhite ? W_ROOK_C : B_ROOK_C;
+    enum Piece const NEW_ROOK = isWhite ? W_ROOK : B_ROOK;
+    enum Piece const KING = isWhite ? W_KING : B_KING;
+
+    if (*(board + 7 + CoordRank) != ROOK) {
+        return false;
+    }
+
+    *(board + 7 + CoordRank) = EMPTY;
+    *(board + 6 + CoordRank) = KING;
+    *(board + 5 + CoordRank) = NEW_ROOK;
+    *(board + 4 + CoordRank) = EMPTY;
+
+    return true;
+}
+
+bool Castle(enum Piece *board, char *move, bool isWhite) {
+    int const LocationKing = isWhite ? 4 + 0 * SIDE_lENGHT : 4 + 7 * SIDE_lENGHT;
+    enum Piece const ActivePiece = isWhite ? W_KING_C : B_KING_C;
+    if (*(board + LocationKing) != ActivePiece) {
+        return false;
+    }
+    if (move[4] == 'O') {
+        return QueenSideCastle(board, isWhite);
+    }
+
+    if (move[4] != 'O') {
+        return KingSideCastle(board, isWhite);
+    }
+
+    return false;
 }

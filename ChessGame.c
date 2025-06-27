@@ -11,7 +11,35 @@
 #include "Pieces/Knight.h"
 
 
-
+enum Piece LetterToPiece(char Letter, bool White) {
+    if (White) {
+        switch (Letter) {
+            case 'R':
+                return W_ROOK;
+            case 'N':
+                return W_KNIGHT;
+            case 'B':
+                return W_BISHOP;
+            case 'Q':
+                return W_QUEEN;
+            default:
+                return EMPTY;
+        }
+    }else {
+        switch (Letter) {
+            case 'R':
+                return B_ROOK;
+            case 'N':
+                return B_KNIGHT;
+            case 'B':
+                return B_BISHOP;
+            case 'Q':
+                return B_QUEEN;
+            default:
+                return EMPTY;
+        }
+    }
+}
 
 int LetterToCoordinate(char Letter) {
     switch (Letter) {
@@ -65,7 +93,7 @@ bool IsLegitCoordinate(int *Coordinate) {
 }
 
 bool IsTileLight(int Coordinate[]) {
-    return !(Coordinate[0] % 2 == Coordinate[1] % 2);
+    return Coordinate[0] % 2 != Coordinate[1] % 2;
 }
 
 bool CharIsPiece(char const C) {
@@ -96,6 +124,8 @@ bool ProcessMove(enum Piece *Board, char *move, bool WhitePlay) {
 
     if (CharIsPiece(*move)) {
         return PieceSwitch(Board, move, WhitePlay);
+    }else if (*move == 'O') {
+        return Castle(Board, move, WhitePlay);
     }else {
         return DoPawnMove(Board, move, WhitePlay);
     }

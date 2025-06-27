@@ -70,6 +70,10 @@ bool DoKnightMove(enum Piece *board, char const *move, bool const isWhite) {
         NewCoord[1] = (int)(move[4] - '0') - 1;
     }
 
+    if (!IsLegitCoordinate(NewCoord)) {
+        return false;
+    }
+
     bool const Capture = *(board + NewCoord[0] + NewCoord[1] * 8) != EMPTY;
 
     if (Capture && SameColor(isWhite, *(board + NewCoord[0] + NewCoord[1] * 8))) {

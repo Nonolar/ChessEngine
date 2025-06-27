@@ -36,8 +36,9 @@ bool RookMoveNoObstacle(enum Piece *Board, int *NewCoord, int *OldCoord) {
 
 int SearchFileForRook(enum Piece *Board, int File, bool SearchWhite) {
     enum Piece ToFind = SearchWhite ? W_ROOK : B_ROOK;
+    enum Piece const AlternativeToFind = SearchWhite ? W_ROOK_C : B_ROOK_C;
     for (int i = 0; i < 8; i++) {
-        if (*(Board + File + i * 8) == ToFind) {
+        if (*(Board + File + i * 8) == ToFind || *(Board + File + i * 8) == AlternativeToFind) {
             return i;
         }
     }
@@ -46,8 +47,9 @@ int SearchFileForRook(enum Piece *Board, int File, bool SearchWhite) {
 
 int SearchRankForRook(enum Piece *Board, int Rank, bool SearchWhite) {
     enum Piece ToFind = SearchWhite ? W_ROOK : B_ROOK;
+    enum Piece const AlternativeToFind = SearchWhite ? W_ROOK_C : B_ROOK_C;
     for (int i = 0; i < 8; i++) {
-        if (*(Board + Rank  * 8 + i) == ToFind) {
+        if (*(Board + Rank  * 8 + i) == ToFind || *(Board + Rank  * 8 + i) == AlternativeToFind) {
             return i;
         }
     }
@@ -78,6 +80,10 @@ bool DoRookMove(enum Piece *Board, char *move, bool WhitePlay) {
     enum Piece ActivePiece = W_ROOK;
     if (!WhitePlay) {
         ActivePiece = B_ROOK;
+    }
+
+    if (!IsLegitCoordinate(NewCoord)) {
+        return false;
     }
 
     bool const Capture = *(Board + NewCoord[0] + NewCoord[1] * 8) != EMPTY;

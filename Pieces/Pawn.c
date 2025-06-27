@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include "Pawn.h"
 
-bool CorrectMovement(int NewCoord[], int OldCoord[]) {
+bool CorrectMovement(int const NewCoord[], int const OldCoord[]) {
     return (NewCoord[0] - OldCoord[0] == 0 && abs(NewCoord[1] - OldCoord[1]) <= 2) || (abs(NewCoord[0] - OldCoord[0]) == 1 && abs(NewCoord[1] - OldCoord[1]) == 1);
 }
 
@@ -64,6 +64,17 @@ int FindPawnOnRank(enum Piece const *Board, int NewColummn, int Rank, bool FindW
     }
 }
 
+bool Promote(enum Piece *board, int const *OldCoord, int const *NewCoord, char const PieceLetter, bool const isWhite) {
+    enum Piece const newPiece = LetterToPiece(PieceLetter, isWhite);
+    if (!CorrectMovement(NewCoord, OldCoord) || newPiece == EMPTY) {
+        return false;
+    }
+
+    *(board + OldCoord[0] + OldCoord[1] * SIDE_lENGHT) = EMPTY;
+    *(board + NewCoord[0] + NewCoord[1] * SIDE_lENGHT) = newPiece;
+
+    return true;
+}
 
 bool DoPawnMove(enum Piece *Board, char move[5], bool WhiteTurn) {
     int OrigCoord[2] = {INVALID_COORDINATE, INVALID_COORDINATE};
@@ -86,6 +97,10 @@ bool DoPawnMove(enum Piece *Board, char move[5], bool WhiteTurn) {
     }
     enum Piece NewTile = *(Board + NewCoord[0] + NewCoord[1] * 8);
     bool Capture = NewTile != EMPTY;
+
+    if (!IsLegitCoordinate(NewCoord)) {
+        return false;
+    }
     //Check so that we don't capture our own piece
     if ( Capture && SameColor(WhiteTurn, NewTile)) {
         return false;
@@ -106,6 +121,11 @@ bool DoPawnMove(enum Piece *Board, char move[5], bool WhiteTurn) {
     }else {
         OrigCoord[0] = LetterToCoordinate(move[0]);
         OrigCoord[1] = FindPawnOnRank(Board, NewCoord[1], OrigCoord[0], WhiteTurn);
+    }
+
+    if ((WhiteTurn && NewCoord[1] == 7) || (!WhiteTurn && NewCoord[1] == 0)) {
+        char Letter = Simple ? move[2] : move[3];
+        return Promote(Board, OrigCoord, NewCoord, Letter, WhiteTurn);
     }
 
     if (!CorrectMovement(NewCoord, OrigCoord)) {
