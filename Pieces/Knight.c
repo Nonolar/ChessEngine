@@ -15,15 +15,22 @@ bool CompleteKnightMove(enum Piece *board, int *OrigCoord, int *NewCoord, bool i
         return false;
     }
 
-    enum Piece activePiece = isWhite ? W_KNIGHT : B_KNIGHT;
+    enum Piece const activePiece = isWhite ? W_KNIGHT : B_KNIGHT;
+    enum Piece const PreviousPiece = *(board + NewCoord[0] + NewCoord[1] * SIDE_lENGHT);
 
     *(board + NewCoord[0] + NewCoord[1] * SIDE_lENGHT) = activePiece;
     *(board + OrigCoord[0] + OrigCoord[1] * SIDE_lENGHT) = EMPTY;
 
+    if (IsCheck(board, isWhite)) {
+        *(board + NewCoord[0] + NewCoord[1] * SIDE_lENGHT) = PreviousPiece;
+        *(board + OrigCoord[0] + OrigCoord[1] * SIDE_lENGHT) = activePiece;
+        return false;
+    }
+
     return true;
 }
 
-int *FindKnight(enum Piece *board, int *NewCoord, bool isWhite, int priorityFile) {
+int *FindKnight(enum Piece const *board, int const *NewCoord, bool const isWhite, int const priorityFile) {
     int Search[] = {NOT_FOUND, NOT_FOUND};
     int *KnightCoord = malloc(sizeof(int) * 2);
     KnightCoord[0] = INVALID_COORDINATE;

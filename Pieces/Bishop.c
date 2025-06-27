@@ -34,8 +34,15 @@ bool CompleteMove(enum Piece *Board, int *OrigCoord, int *NewCoord, enum Piece A
         return false;
     }
 
+    enum Piece const PreviousPiece = *(Board + NewCoord[0] + NewCoord[1] * SIDE_lENGHT);
     *(Board + OrigCoord[0] + OrigCoord[1] * SIDE_lENGHT) = EMPTY;
     *(Board + NewCoord[0] + NewCoord[1] * SIDE_lENGHT) = ActivePiece;
+
+    if (IsCheck(Board, !isBlack(ActivePiece))) {
+        *(Board + OrigCoord[0] + OrigCoord[1] * SIDE_lENGHT) = ActivePiece;
+        *(Board + NewCoord[0] + NewCoord[1] * SIDE_lENGHT) = PreviousPiece;
+        return false;
+    }
 
     return true;
 }

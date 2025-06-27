@@ -2,9 +2,86 @@
 #include <stdbool.h>
 #include "EvalFunc.h"
 
-bool SquareUnderAttack(enum Piece const *board, int const *Coord) {
-    //TODO
+#include "ChessGame.h"
+#include "Pieces/Bishop.h"
+#include "Pieces/King.h"
+#include "Pieces/Knight.h"
+#include "Pieces/Pawn.h"
+#include "Pieces/Queen.h"
+#include "Pieces/Rook.h"
+
+bool SquareUnderAttack(enum Piece const *board, int const *Coord, bool CheckForWhite) {
+    int *AttackingPieceCoord = FindRook(board, Coord, !CheckForWhite, NOT_FOUND);
+    if (IsLegitCoordinate(AttackingPieceCoord)) {
+        free(AttackingPieceCoord);
+        return true;
+    }
+    free(AttackingPieceCoord);
+
+    AttackingPieceCoord = FindKnight(board, Coord, !CheckForWhite, NOT_FOUND);
+    if (IsLegitCoordinate(AttackingPieceCoord)) {
+        free(AttackingPieceCoord);
+        return true;
+    }
+    free(AttackingPieceCoord);
+
+    AttackingPieceCoord = FindBishop(board, Coord, !CheckForWhite, NOT_FOUND);
+    if (IsLegitCoordinate(AttackingPieceCoord)) {
+        free(AttackingPieceCoord);
+        return true;
+    }
+    free(AttackingPieceCoord);
+
+    AttackingPieceCoord = FindKing(board, Coord, !CheckForWhite);
+    if (IsLegitCoordinate(AttackingPieceCoord)) {
+        free(AttackingPieceCoord);
+        return true;
+    }
+    free(AttackingPieceCoord);
+
+    AttackingPieceCoord = FindQueen(board, Coord, CheckForWhite ? B_QUEEN : W_QUEEN, NOT_FOUND);
+    if (IsLegitCoordinate(AttackingPieceCoord)) {
+        free(AttackingPieceCoord);
+        return true;
+    }
+    free(AttackingPieceCoord);
+
+    AttackingPieceCoord = malloc(sizeof(int) * 2);
+    FindSinglePawnCapture(board, Coord, AttackingPieceCoord, !CheckForWhite);
+    if (IsLegitCoordinate(AttackingPieceCoord)) {
+        free(AttackingPieceCoord);
+        return true;
+    }
+    free(AttackingPieceCoord);
     return false;
+}
+
+bool IsCheck(enum Piece const *board, bool const White) {
+    enum Piece KingToFind = White ? W_KING : B_KING;
+    enum Piece foundPiece = EMPTY;
+
+    int Location = -1;
+
+    for (int i = 0; i < SIDE_lENGHT * SIDE_lENGHT && Location == -1; i++) {
+        foundPiece = *(board + i);
+        Location = foundPiece == KingToFind ? i : Location;
+
+    }
+
+    if (Location == -1) {
+        KingToFind = White ? W_KING_C : B_KING_C;
+        for (int i = 0; i < SIDE_lENGHT * SIDE_lENGHT && Location == -1; i++) {
+            foundPiece = *(board + i);
+            Location = foundPiece == KingToFind ? i : Location;
+        }
+    }
+
+
+    int Coord[2];
+    Coord[0] = Location % 8;
+    Coord[1] = (Location - Coord[0])/8;
+
+    return  SquareUnderAttack(board, Coord, White);
 }
 
 bool isBlack(enum Piece piece) {
@@ -31,6 +108,7 @@ bool isBlack(enum Piece piece) {
             return false;
     }
 }
+
 int GetPieceScore(enum Piece piece) {
     switch (piece) {
         case B_PAWN:

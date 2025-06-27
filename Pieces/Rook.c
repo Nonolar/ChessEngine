@@ -38,7 +38,7 @@ int SearchFileForRook(enum Piece *Board, int File, bool SearchWhite) {
     enum Piece ToFind = SearchWhite ? W_ROOK : B_ROOK;
     enum Piece const AlternativeToFind = SearchWhite ? W_ROOK_C : B_ROOK_C;
     for (int i = 0; i < 8; i++) {
-        if (*(Board + File + i * 8) == ToFind || *(Board + File + i * 8) == AlternativeToFind) {
+        if (*(Board + File * 8 + i ) == ToFind || *(Board + File * 8 + i ) == AlternativeToFind) {
             return i;
         }
     }
@@ -49,11 +49,36 @@ int SearchRankForRook(enum Piece *Board, int Rank, bool SearchWhite) {
     enum Piece ToFind = SearchWhite ? W_ROOK : B_ROOK;
     enum Piece const AlternativeToFind = SearchWhite ? W_ROOK_C : B_ROOK_C;
     for (int i = 0; i < 8; i++) {
-        if (*(Board + Rank  * 8 + i) == ToFind || *(Board + Rank  * 8 + i) == AlternativeToFind) {
+        if (*(Board + Rank + i  * 8) == ToFind || *(Board + Rank + i * 8) == AlternativeToFind) {
             return i;
         }
     }
     return INVALID_COORDINATE;
+}
+
+int *FindRook(enum Piece const *Board, int const *Coord, bool const SearchWhite, int const PreferredRank) {
+    int *FoundRook = malloc(sizeof(int) * 2);
+    FoundRook[0] = INVALID_COORDINATE;
+    FoundRook[1] = INVALID_COORDINATE;
+
+    if (PreferredRank != INVALID_COORDINATE) {
+        FoundRook[0] = PreferredRank;
+        FoundRook[1] = SearchRankForRook(Board, PreferredRank, SearchWhite);
+        return FoundRook;
+    }
+
+    //Try searching rank first, if not succes search File and return
+    FoundRook[0] = Coord[0];
+    FoundRook[1] = SearchRankForRook(Board, Coord[0], SearchWhite);
+
+    if (FoundRook[1] != INVALID_COORDINATE) {
+        return FoundRook;
+    }
+
+    FoundRook[1] = Coord[1];
+    FoundRook[0] = SearchFileForRook(Board, Coord[1], SearchWhite);
+
+    return FoundRook;
 }
 
 bool DoRookMove(enum Piece *Board, char *move, bool WhitePlay) {
@@ -99,22 +124,29 @@ bool DoRookMove(enum Piece *Board, char *move, bool WhitePlay) {
         return false;
     }
 
-    if (!Simple) {
-        OrigCoord[1] = SearchFileForRook(Board, OrigCoord[0], WhitePlay);
-    }else if (SearchRankForRook(Board, NewCoord[1], WhitePlay) == INVALID_COORDINATE) {
-        OrigCoord[1] = SearchFileForRook(Board, NewCoord[0], WhitePlay);
-        OrigCoord[0] = NewCoord[0];
-    }else {
-        OrigCoord[1] = NewCoord[1];
-        OrigCoord[0] = SearchRankForRook(Board, NewCoord[1], WhitePlay);
+    int *FoundRook = FindRook(Board, NewCoord, WhitePlay, OrigCoord[0]);
+    OrigCoord[0] = FoundRook[0];
+    OrigCoord[1] = FoundRook[1];
+    free(FoundRook);
+
+    if (!IsLegitCoordinate(OrigCoord)) {
+        return false;
     }
 
     if (!confirmMove(NewCoord, OrigCoord) || !RookMoveNoObstacle(Board, &NewCoord[0], &OrigCoord[0])) {
         return false;
     }
 
+    enum Piece previousPiece = *(Board + NewCoord[0] + NewCoord[1] * 8);
+
     *(Board + NewCoord[0] + NewCoord[1] * 8) = ActivePiece;
     *(Board + OrigCoord[0] + OrigCoord[1] * 8) = EMPTY;
+
+    if (IsCheck(Board, WhitePlay)) {
+        *(Board + NewCoord[0] + NewCoord[1] * 8) = previousPiece;
+        *(Board + OrigCoord[0] + OrigCoord[1] * 8) = ActivePiece;
+        return false;
+    }
 
     return true;
 }

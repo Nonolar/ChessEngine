@@ -9,7 +9,7 @@ bool IsValidMove(int *OrigCoord, int *NewCoord) {
 }
 
 bool FinishMove(enum Piece *board, int *origCoord, int *NewCoord, bool isWhite) {
-    if (!IsValidMove(origCoord, NewCoord) || SquareUnderAttack(board, NewCoord)) {
+    if (!IsValidMove(origCoord, NewCoord) || SquareUnderAttack(board, NewCoord, isWhite)) {
         return false;
     }
 
@@ -100,7 +100,7 @@ bool QueenSideCastle(enum Piece *board, bool isWhite) {
 
     for (int i = 0; i < 3; i++) {
         Coord[0] = i + 1;
-        if (*(board + Coord[0] + CoordRank) != EMPTY || SquareUnderAttack(board, Coord)) {
+        if (*(board + Coord[0] + CoordRank) != EMPTY || SquareUnderAttack(board, Coord, isWhite)) {
             return false;
         }
     }
@@ -129,7 +129,7 @@ bool KingSideCastle(enum Piece *board, bool isWhite) {
 
     for (int i = 0; i < 2; i++) {
         Coord[0] = i + 5;
-        if (*(board + Coord[0] + CoordRank) != EMPTY || SquareUnderAttack(board, Coord)) {
+        if (*(board + Coord[0] + CoordRank) != EMPTY || SquareUnderAttack(board, Coord, isWhite)) {
             return false;
         }
     }

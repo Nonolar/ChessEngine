@@ -5,6 +5,7 @@
 #include "../EvalFunc.h"
 #pragma once
 
+int *FindRook(enum Piece const *Board, int const *Coord, bool const SearchWhite, int const PreferredRank);
 bool DoRookMove(enum Piece *Board, char *move, bool WhitePlay);
 
 #endif //ROOK_H

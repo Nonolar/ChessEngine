@@ -35,10 +35,17 @@ bool FinalizeMove(enum Piece *board, int const *OldCoord, int const *NewCoord, b
         return false;
     }
 
-    enum Piece activePiece = isWhite ? W_QUEEN : B_QUEEN;
+    enum Piece const activePiece = isWhite ? W_QUEEN : B_QUEEN;
+    enum Piece const previousPiece = *(board + NewCoord[0] + NewCoord[1] * 8);
 
     *(board + NewCoord[0] + NewCoord[1] * 8) = activePiece;
     *(board + OldCoord[0] + OldCoord[1] * 8) = EMPTY;
+
+    if (IsCheck(board, isWhite)) {
+        *(board + NewCoord[0] + NewCoord[1] * 8) = previousPiece;
+        *(board + OldCoord[0] + OldCoord[1] * 8) = activePiece;
+        return false;
+    }
 
     return true;
 }

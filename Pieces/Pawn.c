@@ -140,10 +140,20 @@ bool DoPawnMove(enum Piece *Board, char move[5], bool WhiteTurn) {
         }
     }
 
+    enum Piece const previousPiece = *(Board + NewCoord[0] + NewCoord[1] * 8);
+    enum Piece const EnPassantPiece = *(Board + NewCoord[0] + OrigCoord[1] * 8);
+
     *(Board + OrigCoord[0] + OrigCoord[1] * 8) = EMPTY;
     *(Board + NewCoord[0] + NewCoord[1] * 8) = ToFind;
     if (EnPassant) {
         *(Board + NewCoord[0] + OrigCoord[1] * 8) = EMPTY;
+    }
+
+    if (IsCheck(Board, !isBlack(ToFind))) {
+        *(Board + OrigCoord[0] + OrigCoord[1] * 8) = ToFind;
+        *(Board + NewCoord[0] + NewCoord[1] * 8) = previousPiece;
+        *(Board + NewCoord[0] + OrigCoord[1] * 8) = EnPassantPiece;
+        return false;
     }
 
     return true;
