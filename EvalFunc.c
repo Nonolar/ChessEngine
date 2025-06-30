@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include "EvalFunc.h"
 
 #include "ChessGame.h"
@@ -9,6 +10,9 @@
 #include "Pieces/Pawn.h"
 #include "Pieces/Queen.h"
 #include "Pieces/Rook.h"
+
+
+
 
 bool SquareUnderAttack(enum Piece const *board, int const *Coord, bool CheckForWhite) {
     int *AttackingPieceCoord = FindRook(board, Coord, !CheckForWhite, NOT_FOUND);
@@ -80,8 +84,11 @@ bool IsCheck(enum Piece const *board, bool const White) {
     int Coord[2];
     Coord[0] = Location % 8;
     Coord[1] = (Location - Coord[0])/8;
-
-    return  SquareUnderAttack(board, Coord, White);
+    bool IsCheck = SquareUnderAttack(board, Coord, White);;
+    /*if (IsCheck) {
+        printf("%s is in check!\n", White ? "White" : "Black");
+    }*/
+    return  IsCheck;
 }
 
 bool isBlack(enum Piece piece) {
@@ -180,9 +187,7 @@ void GetMoveSwitchBox(enum Piece const *board, int const *Coord,  enum Piece con
     }
 }
 
-void GetAllMoves(enum Piece *BoardState, bool White) {
-    char **moves = NULL;
-    int NumberOfMoves = 0;
+void GetAllMoves(enum Piece *BoardState, bool White, char ***moves, int *NumberOfMoves) {
     //Loop through all pieces and get the moves for the corresponding piece
     for (int i = 0; i < SIDE_lENGHT * SIDE_lENGHT; i++) {
         enum Piece const activePiece = *(BoardState + i);
@@ -192,22 +197,20 @@ void GetAllMoves(enum Piece *BoardState, bool White) {
 
         int Coordinate[2] = {i % 8, (i - i % 8) / 8};
 
-        GetMoveSwitchBox(BoardState, Coordinate, activePiece, &moves, &NumberOfMoves);
+        GetMoveSwitchBox(BoardState, Coordinate, activePiece, moves, NumberOfMoves);
     }
 
-    printf("Number of moves %d\n", NumberOfMoves);
+    //printf("Number of moves %d\n", *NumberOfMoves);
 
-    for (int i = 0; i < NumberOfMoves; i++) {
-        printf("move nr. %d: %s\n", i + 1, moves[i]);
+    for (int i = 0; i < *NumberOfMoves; i++) {
+        //printf("move nr. %d: %s\n", i + 1, (*moves)[i]);
     }
 
-    if (moves != NULL) {
-        for (int i = 0; i < NumberOfMoves; i++) {
-            free(moves[i]);
-        }
-        free(moves);
-    }
+
 }
+
+
+
 
 float getEvalScorePiece(enum Piece *piece) {
     if (*piece == EMPTY) {
@@ -240,4 +243,61 @@ float Evaluate(enum Piece *Board) {
     Evaluation += CountPieces(Board);
 
     return Evaluation;
+}
+
+bool GameOver(enum Piece const *board, bool CheckWhiteWin) {
+    //TODO
+    //Game over logic
+
+    //TODO
+    //White win logic
+
+    return false;
+}
+
+struct move Minimax(enum Piece *board, int depth, bool MaxPlayer, float alpha, float beta) {
+    //printf("Depth: %d", depth);
+    char **AvailableMoves = NULL;
+    if (depth == 0) {
+        struct move const Nothing = {"\0", Evaluate(board)};
+        return Nothing;
+    }
+
+    if (GameOver(board, false)) {
+        float evaluation = GameOver(board, true) ? 100000.0f : -100000.0f;
+        struct move const Nothing = {"\0", evaluation};
+        return Nothing;
+    }
+    int NumberOfChildren = 0;
+    GetAllMoves(board, MaxPlayer, &AvailableMoves, &NumberOfChildren);
+    enum Piece *SimulatedBoard = (enum Piece*)malloc(sizeof(enum Piece) * 64);
+    struct move BestMove = {"\0", MaxPlayer ? -1000000.0f : 100000.0f};
+    for (int i = 0; i < NumberOfChildren; i++) {
+
+        memcpy(SimulatedBoard, board, sizeof(enum Piece) * 64);
+        bool legal = ProcessMove(SimulatedBoard, AvailableMoves[i], MaxPlayer);
+
+        if (!legal) {
+            continue;
+        }
+
+        struct move Evaluate = Minimax(SimulatedBoard, depth - 1, !MaxPlayer, alpha, beta);
+        Evaluate.Move = AvailableMoves[i];
+        if (Evaluate.Evaluation > BestMove.Evaluation && MaxPlayer) {
+            BestMove = Evaluate;
+
+            alpha = BestMove.Evaluation;
+        }else if (Evaluate.Evaluation < BestMove.Evaluation && !MaxPlayer) {
+            BestMove = Evaluate;
+            beta = BestMove.Evaluation;
+        }
+
+        if (beta <= alpha) {
+            free(SimulatedBoard);
+            return BestMove;
+        }
+    }
+
+    free(SimulatedBoard);
+    return BestMove;
 }

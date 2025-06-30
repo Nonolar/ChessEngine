@@ -19,7 +19,7 @@ enum Types {
 enum Types PieceToType(enum Piece piece);
 enum Piece LetterToPiece(char letter, bool White);
 int LetterToCoordinate(char letter);
-bool IsLegitCoordinate(int *Coordinate);
+bool IsLegitCoordinate(int const *Coordinate);
 bool IsTileLight(int Coordinate[]);
 bool SameColor(bool White, enum Piece Comparand);
 void GetMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char const Piece, int const *StepsToTake, bool const OneMove, int MovesSize, char ***Moves);

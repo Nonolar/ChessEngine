@@ -15,7 +15,8 @@ bool IsCorrectMove(int const *NewCoord, int const *OldCoord) {
 bool FindObstacle(int const *OldCoord, int const *NewCoord, enum Piece const *board) {
     int Xmov = (NewCoord[0] - OldCoord[0]) < 0 ? -1 : 1;
     int Ymov = (NewCoord[1] - OldCoord[1]) < 0 ? -1 : 1;
-
+    Xmov = (NewCoord[0] - OldCoord[0]) == 0 ? 0 : Xmov;
+    Ymov = (NewCoord[1] - OldCoord[1]) == 0 ? 0 : Ymov;
     int SearchCoord[] = {OldCoord[0] + Xmov, OldCoord[1] + Ymov};
     for (int i = 2; IsLegitCoordinate(&SearchCoord[0]) && (SearchCoord[0] != *NewCoord || SearchCoord[1] != NewCoord[1]); i++) {
 
@@ -51,8 +52,8 @@ bool FinalizeMove(enum Piece *board, int const *OldCoord, int const *NewCoord, b
 }
 
 void SearchPart(enum Piece const *Board, int const *NewCoord, enum Piece const ToFind, int const *changeInDir, int *SearchCoord) {
-    SearchCoord[0] = NewCoord[0];
-    SearchCoord[1] = NewCoord[1];
+    SearchCoord[0] = NewCoord[0] + changeInDir[0];
+    SearchCoord[1] = NewCoord[1] + changeInDir[1];
 
     for (int i = 0; IsLegitCoordinate(SearchCoord) && *(Board + SearchCoord[0] + SearchCoord[1] * SIDE_lENGHT) != ToFind && *(Board + SearchCoord[0] + SearchCoord[1] * SIDE_lENGHT) == EMPTY; i++) {
         SearchCoord[0] += changeInDir[0];

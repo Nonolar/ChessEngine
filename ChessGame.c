@@ -122,7 +122,7 @@ bool SameColor(bool White, enum Piece Comparand) {
     return false;
 }
 
-bool IsLegitCoordinate(int *Coordinate) {
+bool IsLegitCoordinate(int const *Coordinate) {
     if (Coordinate[0] == INVALID_COORDINATE || Coordinate[1] == INVALID_COORDINATE) {
         return false;
     }

@@ -49,8 +49,8 @@ bool CompleteMove(enum Piece *Board, int *OrigCoord, int *NewCoord, enum Piece A
 
 void SearchQuadrant(enum Piece const *Board, int const *NewCoord, enum Piece const ToFind, int const *changeInDir, int *SearchCoordinate) {
 
-    SearchCoordinate[0] = NewCoord[0];
-    SearchCoordinate[1] = NewCoord[1];
+    SearchCoordinate[0] = NewCoord[0] + changeInDir[0];
+    SearchCoordinate[1] = NewCoord[1] + changeInDir[1];
 
     //Start looking in the third quadrant and go counterclockwise from there
     for (int i = 0; IsLegitCoordinate(SearchCoordinate) && *(Board + SearchCoordinate[0] + SearchCoordinate[1] * SIDE_lENGHT) != ToFind && *(Board + SearchCoordinate[0] + SearchCoordinate[1] * SIDE_lENGHT) == EMPTY; i++) {

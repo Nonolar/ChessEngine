@@ -61,7 +61,11 @@ int *FindRook(enum Piece const *Board, int const *Coord, bool const SearchWhite,
     FoundRook[0] = INVALID_COORDINATE;
     FoundRook[1] = INVALID_COORDINATE;
 
-    if (PreferredRank != INVALID_COORDINATE) {
+    if (!IsLegitCoordinate(Coord)) {
+        return FoundRook;
+    }
+
+    if (PreferredRank != INVALID_COORDINATE && PreferredRank != NOT_FOUND) {
         FoundRook[0] = PreferredRank;
         FoundRook[1] = SearchRankForRook(Board, PreferredRank, SearchWhite);
         return FoundRook;

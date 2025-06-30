@@ -4,7 +4,13 @@
 #include "ChessGame.h"
 #include "EvalFunc.h"
 #include "Pieces/Bishop.h"
+#ifdef WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 
+#define DEPTH 5
 #define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_RESET "\x1b[0m"
 
@@ -141,6 +147,13 @@ bool PlayOneRound(enum Piece *Board, bool WhiteRound) {
 }
 
 int main(void) {
+    int sleepTime = 10;
+#ifdef WIN32
+    sleepTime = 1000;
+#else
+    sleepTime = 1;
+#endif
+
     setbuf(stdout, 0);
     enum Piece *Board = malloc(sizeof(enum Piece) * 64);
     //malloc(64*sizeof(enum Piece))
@@ -155,25 +168,41 @@ int main(void) {
     RenderBoard(Board);
     float evauluation = Evaluate(Board);
     printf("Evaluation: %f\n", evauluation);
-    int Coord[2] = {2, 0};
-    int *Integer = malloc(sizeof(int));
 
+
+    bool whiteBot = false;
+    bool blackBot = true;
 
     bool DoWhiteRound = true;
     bool DoBlackRound = true;
     while (!GameIsOver(Board)) {
-        if (DoWhiteRound) {
-            GetAllMoves(Board, true);
+        if (DoWhiteRound && !whiteBot) {
             RemoveEnPassant(Board, true);
             DoBlackRound = PlayOneRound(Board, true);
             RenderBoard(Board);
             evauluation = Evaluate(Board);
             printf("Evaluation: %f\n", evauluation);
+        }else if (DoWhiteRound) {
+            RemoveEnPassant(Board, true);
+            char *MoveToDO = Minimax(Board, DEPTH, true, -10000000.0f, 10000000.0f).Move;
+            DoBlackRound = ProcessMove(Board, MoveToDO, true);
+            printf("Move made: %s\n", MoveToDO);
+            RenderBoard(Board);
+            evauluation = Evaluate(Board);
+            printf("Evaluation: %f\n", evauluation);
         }
-        if (DoBlackRound) {
-            GetAllMoves(Board, false);
+        //char ch = getchar();
+        if (DoBlackRound && !blackBot) {
             RemoveEnPassant(Board, false);
             DoWhiteRound =  PlayOneRound(Board, false);
+            RenderBoard(Board);
+            evauluation = Evaluate(Board);
+            printf("Evaluation: %f\n", evauluation);
+        }else if (DoBlackRound) {
+            RemoveEnPassant(Board, false);
+            char *MoveToDO = Minimax(Board, DEPTH, false, -10000000.0f, 10000000.0f).Move;
+            DoWhiteRound = ProcessMove(Board, MoveToDO, false);
+            printf("Move made: %s\n", MoveToDO);
             RenderBoard(Board);
             evauluation = Evaluate(Board);
             printf("Evaluation: %f\n", evauluation);

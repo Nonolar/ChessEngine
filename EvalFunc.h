@@ -22,9 +22,16 @@ enum Piece {
     W_PAWN_EN,
     EMPTY
 };
+struct move {
+    char *Move;
+    float Evaluation;
+};
+
+
 bool SquareUnderAttack(enum Piece const *board, int const *Coord, bool CheckForWhite);
 bool IsCheck(enum Piece const *board, bool const White);
-void GetAllMoves(enum Piece *BoardState, bool White);
+void GetAllMoves(enum Piece *BoardState, bool White, char ***moves, int *NumberOfMoves);
 float Evaluate(enum Piece *Board);
 bool isBlack(enum Piece piece);
+struct move Minimax(enum Piece *board, int depth, bool MaxPlayer, float alpha, float beta);
 #endif //EVALFUNC_H
