@@ -7,8 +7,7 @@
 #include  "../EvalFunc.h"
 
 int *FindKing(enum Piece *board, int *NewCoord, bool isWhite);
-
-char **GetKingMoves(enum Piece *BoardState, int const *Coord, int *NumberOfMoves);
+void GetKingMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char **FoundMoves);
 bool DoKingMove(enum Piece *Board, char *move, bool isWhite);
 bool Castle(enum Piece *board, char *move, bool isWhite);
 #endif //KING_H

@@ -7,11 +7,11 @@
 #include <ctype.h>
 
 
-bool confirmMove(int NewCoord[], int OldCoord[]) {
+bool confirmMove(int const NewCoord[], int const OldCoord[]) {
     return (NewCoord[0] - OldCoord[0] == 0 || NewCoord[1] - OldCoord[1] == 0);
 }
 
-bool RookMoveNoObstacle(enum Piece *Board, int *NewCoord, int *OldCoord) {
+bool RookMoveNoObstacle(enum Piece const *Board, int const *NewCoord, int const *OldCoord) {
     if (NewCoord[0] == OldCoord[0]) {
         int Direction = NewCoord[1] - OldCoord[1];
         Direction = Direction > 0 ? 1 : -1;

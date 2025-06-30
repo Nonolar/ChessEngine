@@ -53,7 +53,7 @@ void SearchQuadrant(enum Piece const *Board, int const *NewCoord, enum Piece con
     SearchCoordinate[1] = NewCoord[1];
 
     //Start looking in the third quadrant and go counterclockwise from there
-    for (int i = 0; IsLegitCoordinate(SearchCoordinate) && *(Board + SearchCoordinate[0] + SearchCoordinate[1] * SIDE_lENGHT) != ToFind; i++) {
+    for (int i = 0; IsLegitCoordinate(SearchCoordinate) && *(Board + SearchCoordinate[0] + SearchCoordinate[1] * SIDE_lENGHT) != ToFind && *(Board + SearchCoordinate[0] + SearchCoordinate[1] * SIDE_lENGHT) == EMPTY; i++) {
         SearchCoordinate[0] += changeInDir[0];
         SearchCoordinate[1] += changeInDir[1];
         //Search Coordinate 2 is the number of steps taken

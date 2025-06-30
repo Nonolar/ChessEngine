@@ -55,7 +55,11 @@ int *FindKnight(enum Piece const *board, int const *NewCoord, bool const isWhite
 
     return KnightCoord;
 }
-
+void GetKnightMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char **FoundMoves) {
+    int const PossibleMoves[16] = {-2, -1, -1, -2, 1, -2, 2, -1, 2, 1, 1, 2, -1, 2, -2, 1};
+    int const MovesSize = 8;
+    GetMoves(BoardState, Coord, NumberOfMoves, 'N', PossibleMoves, true, MovesSize, FoundMoves);
+}
 bool DoKnightMove(enum Piece *board, char const *move, bool const isWhite) {
     int OrigCoord[2] = {NOT_FOUND, NOT_FOUND};
     int NewCoord[2] = {INVALID_COORDINATE, INVALID_COORDINATE};

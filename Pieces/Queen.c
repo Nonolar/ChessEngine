@@ -54,7 +54,7 @@ void SearchPart(enum Piece const *Board, int const *NewCoord, enum Piece const T
     SearchCoord[0] = NewCoord[0];
     SearchCoord[1] = NewCoord[1];
 
-    for (int i = 0; IsLegitCoordinate(SearchCoord) && *(Board + SearchCoord[0] + SearchCoord[1] * SIDE_lENGHT) != ToFind; i++) {
+    for (int i = 0; IsLegitCoordinate(SearchCoord) && *(Board + SearchCoord[0] + SearchCoord[1] * SIDE_lENGHT) != ToFind && *(Board + SearchCoord[0] + SearchCoord[1] * SIDE_lENGHT) == EMPTY; i++) {
         SearchCoord[0] += changeInDir[0];
         SearchCoord[1] += changeInDir[1];
         SearchCoord[2] = i + 1;

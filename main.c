@@ -171,6 +171,7 @@ int main(void) {
             printf("Evaluation: %f\n", evauluation);
         }
         if (DoBlackRound) {
+            GetAllMoves(Board, false);
             RemoveEnPassant(Board, false);
             DoWhiteRound =  PlayOneRound(Board, false);
             RenderBoard(Board);

@@ -12,7 +12,7 @@
 
 bool SquareUnderAttack(enum Piece const *board, int const *Coord, bool CheckForWhite) {
     int *AttackingPieceCoord = FindRook(board, Coord, !CheckForWhite, NOT_FOUND);
-    if (IsLegitCoordinate(AttackingPieceCoord)) {
+    if (IsLegitCoordinate(AttackingPieceCoord) && RookMoveNoObstacle(board, Coord, AttackingPieceCoord)) {
         free(AttackingPieceCoord);
         return true;
     }
@@ -161,6 +161,12 @@ void GetMoveSwitchBox(enum Piece *board, int *Coord,  enum Piece foundPiece, cha
             break;
         case ROOK:
             GetRookMoves(board, Coord, NumberOfMoves, FoundMoves);
+            break;
+        case KING:
+            GetKingMoves(board, Coord, NumberOfMoves, FoundMoves);
+            break;
+        case KNIGHT:
+            GetKnightMoves(board, Coord, NumberOfMoves, FoundMoves);
             break;
         default:
             printf("Somethig wen't wrong\n");
