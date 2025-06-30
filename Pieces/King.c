@@ -45,6 +45,8 @@ int *FindKing(enum Piece *board, int *NewCoord, bool isWhite) {
     return KingCoordinate;
 }
 
+
+
 bool DoKingMove(enum Piece *board, char const *move, bool const isWhite) {
     int OrigCoord[2] = {NOT_FOUND, NOT_FOUND};
     int NewCoord[2] = {INVALID_COORDINATE, INVALID_COORDINATE};

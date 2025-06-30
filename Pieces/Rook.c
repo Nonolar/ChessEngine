@@ -81,6 +81,12 @@ int *FindRook(enum Piece const *Board, int const *Coord, bool const SearchWhite,
     return FoundRook;
 }
 
+void GetRookMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char **FoundMoves) {
+    int const PossibleMoves[8] = {-1, 0, 0, -1, 1, 0, 0, 1};
+    int const MovesSize = 4;
+    GetMoves(BoardState, Coord, NumberOfMoves, 'R', PossibleMoves, false, MovesSize, FoundMoves);
+}
+
 bool DoRookMove(enum Piece *Board, char *move, bool WhitePlay) {
     int OrigCoord[2] = {INVALID_COORDINATE, INVALID_COORDINATE};
     int NewCoord[2] = {INVALID_COORDINATE, INVALID_COORDINATE};

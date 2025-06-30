@@ -101,9 +101,9 @@ void RenderBoard(enum Piece *Board) {
         printf("+-+-+-+-+-+-+-+-+\n");
         for (int j = 0; j < 8; j++) {
             if (isBlack(*(Board + i * 8 + j))) {
-                #ifdef _WIN32:
+                #ifdef _WIN32
                     printf("|%c", GetCharOfPiece(*(Board + i * 8 + j)));
-                #else:
+                #else
                                 printf("|" ANSI_COLOR_RED "%c" ANSI_COLOR_RESET , GetCharOfPiece(*(Board + i * 8 + j)));
                 #endif
 
@@ -163,6 +163,7 @@ int main(void) {
     bool DoBlackRound = true;
     while (!GameIsOver(Board)) {
         if (DoWhiteRound) {
+            GetAllMoves(Board, true);
             RemoveEnPassant(Board, true);
             DoBlackRound = PlayOneRound(Board, true);
             RenderBoard(Board);
@@ -177,7 +178,7 @@ int main(void) {
             printf("Evaluation: %f\n", evauluation);
         }
 
-        GetBishopMoves(Board, Coord, Integer);
+
     }
 
     return 0;

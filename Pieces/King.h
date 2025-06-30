@@ -8,7 +8,7 @@
 
 int *FindKing(enum Piece *board, int *NewCoord, bool isWhite);
 
-
+char **GetKingMoves(enum Piece *BoardState, int const *Coord, int *NumberOfMoves);
 bool DoKingMove(enum Piece *Board, char *move, bool isWhite);
 bool Castle(enum Piece *board, char *move, bool isWhite);
 #endif //KING_H

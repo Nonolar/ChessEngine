@@ -117,6 +117,8 @@ int GetPieceScore(enum Piece piece) {
             return 1;
         case B_ROOK:
             return 5;
+        case B_ROOK_C:
+            return 5;
         case B_KNIGHT:
             return 3;
         case B_BISHOP:
@@ -125,11 +127,15 @@ int GetPieceScore(enum Piece piece) {
             return 9;
         case B_KING:
             return 999;
+        case B_KING_C:
+            return 1000;
         case W_PAWN:
             return 1;
         case W_PAWN_EN:
             return 1;
         case W_ROOK:
+            return 5;
+        case W_ROOK_C:
             return 5;
         case W_KNIGHT:
             return 3;
@@ -139,10 +145,43 @@ int GetPieceScore(enum Piece piece) {
             return 9;
         case W_KING:
             return 999;
+        case W_KING_C:
+            return 1000;
         default:
             return 0;
 
     }
+}
+
+void GetMoveSwitchBox(enum Piece *board, int *Coord,  enum Piece foundPiece, char **FoundMoves, int *NumberOfMoves) {
+    enum Types ActiveType = PieceToType(foundPiece);
+    switch (ActiveType) {
+        case BISHOP:
+            GetBishopMoves(board, Coord, NumberOfMoves, FoundMoves);
+            break;
+        case ROOK:
+            GetRookMoves(board, Coord, NumberOfMoves, FoundMoves);
+            break;
+        default:
+            printf("Somethig wen't wrong\n");
+    }
+}
+
+void GetAllMoves(enum Piece *BoardState, bool White) {
+    char **moves = NULL;
+    int NumberOfMoves = 0;
+    //Loop through all pieces and get the moves for the corresponding piece
+    for (int i = 0; i < SIDE_lENGHT * SIDE_lENGHT; i++) {
+        enum Piece activePiece = *(BoardState + i);
+        if (!SameColor(White, activePiece)) {
+            continue;
+        }
+
+        int Coordinate[2] = {i % 8, (i - i % 8) / 8};
+
+        GetMoveSwitchBox(BoardState, Coordinate, activePiece, moves, &NumberOfMoves);
+    }
+
 }
 
 float getEvalScorePiece(enum Piece *piece) {

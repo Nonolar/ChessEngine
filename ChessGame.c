@@ -10,6 +10,48 @@
 #include "Pieces/King.h"
 #include "Pieces/Knight.h"
 
+enum Types PieceToType(enum Piece piece) {
+    switch (piece) {
+        case W_ROOK:
+            return ROOK;
+        case W_ROOK_C:
+            return ROOK;
+        case W_KNIGHT:
+            return KNIGHT;
+        case W_BISHOP:
+            return BISHOP;
+        case W_QUEEN:
+            return QUEEN;
+        case W_KING:
+            return KING;
+        case W_KING_C:
+            return KING;
+        case W_PAWN:
+            return PAWN;
+        case W_PAWN_EN:
+            return PAWN;
+        case B_ROOK:
+            return ROOK;
+        case B_ROOK_C:
+            return ROOK;
+        case B_KNIGHT:
+            return KNIGHT;
+        case B_BISHOP:
+            return BISHOP;
+        case B_QUEEN:
+            return QUEEN;
+        case B_KING:
+            return KING;
+        case B_KING_C:
+            return KING;
+        case B_PAWN:
+            return PAWN;
+        case B_PAWN_EN:
+            return PAWN;
+        default:
+            return EMPTY_SQR;
+    }
+}
 
 enum Piece LetterToPiece(char Letter, bool White) {
     if (White) {
@@ -65,6 +107,10 @@ int LetterToCoordinate(char Letter) {
 }
 
 bool SameColor(bool White, enum Piece Comparand) {
+    if (Comparand == EMPTY) {
+        return false;
+    }
+
     if (White && !isBlack(Comparand)) {
         return true;
     }
@@ -103,6 +149,82 @@ bool CharIsPiece(char const C) {
         return true;
     }
 }
+
+//This should work for every piece except for pawns
+void GetMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char const Piece, int const *StepsToTake, bool const OneMove, int MovesSize, char **Moves) {
+
+    char const *Letters = "abcdefgh";
+    char BasicMove[4];
+
+    BasicMove[0] = Piece;
+    BasicMove[1] = Letters[Coord[0]];
+    BasicMove[2] = (char)(Coord[1] + 0x31);
+    BasicMove[3] = '\0';
+
+    int ActiveCoord[2] = {Coord[0], Coord[1]};
+
+    bool const IsWhite = !isBlack(*(BoardState + Coord[0] + Coord[1] * 8));
+
+    for (int i = 0; i < MovesSize; i++) {
+        ActiveCoord[0] = Coord[0];
+        ActiveCoord[1] = Coord[1];
+        int steps = 1;
+        ActiveCoord[0] += StepsToTake[i * 2 + 0];
+        ActiveCoord[1] += StepsToTake[i * 2 + 1];
+        while (!OneMove && IsLegitCoordinate(ActiveCoord) && *(BoardState + ActiveCoord[0] + ActiveCoord[1] * 8) == EMPTY) {
+            ActiveCoord[0] += StepsToTake[i * 2 + 0];
+            ActiveCoord[1] += StepsToTake[i * 2 + 1];
+            steps++;
+        }
+
+        if (!IsLegitCoordinate(ActiveCoord) || SameColor(IsWhite, *(BoardState + ActiveCoord[0] + ActiveCoord[1] * SIDE_lENGHT))) {
+            ActiveCoord[0] -= StepsToTake[i * 2 + 0];
+            ActiveCoord[1] -= StepsToTake[i * 2 + 1];
+            steps--;
+        }
+
+        if (steps == 0) {
+            continue;
+        }
+
+        char **NewList = NULL;
+        if (Moves == NULL) {
+            Moves = malloc(sizeof(char*) * steps);
+            *NumberOfMoves = steps;
+            NewList = Moves;
+        }else {
+            *NumberOfMoves += steps;
+            NewList = realloc(Moves, sizeof(char*) * *NumberOfMoves);
+
+        }
+
+        if (NewList == NULL) {
+            fprintf(stderr, "Memory allocation failed %s");
+            exit(1);
+        }
+
+        Moves = NewList;
+
+
+
+        while (steps > 0) {
+            Moves[*NumberOfMoves - steps] = malloc(sizeof(char) * 6);
+            Moves[*NumberOfMoves - steps][0] = BasicMove[0];
+            Moves[*NumberOfMoves - steps][1] = BasicMove[1];
+            Moves[*NumberOfMoves - steps][2] = BasicMove[2];
+            Moves[*NumberOfMoves - steps][3] = Letters[ActiveCoord[0]];
+            Moves[*NumberOfMoves - steps][4] = (char)(ActiveCoord[1] + 0x31);
+            Moves[*NumberOfMoves - steps][5] = '\0';
+
+            printf("\n%s\n", Moves[*NumberOfMoves - steps]);
+
+            ActiveCoord[0] -= StepsToTake[i * 2 + 0];
+            ActiveCoord[1] -= StepsToTake[i * 2 + 1];
+            steps--;
+        }
+    }
+}
+
 
 bool PieceSwitch(enum Piece *Board, char move[5], bool WhitePlay) {
 

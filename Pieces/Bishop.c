@@ -93,81 +93,10 @@ int *FindBishop(enum Piece const *Board, int const *NewCoord, bool const White, 
     return BishopCoord;
 }
 
-char **GetBishopMoves(enum Piece *BoardState, int const *Coord, int *NumberOfMoves) {
-    char **Moves = NULL;
-    char const *Letters = "abcdefgh";
-    char BasicMove[4];
-
-    BasicMove[0] = 'B';
-    BasicMove[1] = Letters[Coord[0]];
-    BasicMove[2] = (char)(Coord[1] + 0x31);
-    BasicMove[3] = '\0';
-
-    int ActiveCoord[2] = {Coord[0], Coord[1]};
-    int const StepsToTake[8] = {-1, -1, 1, -1, 1, 1, -1, 1};
-
-    bool const IsWhite = !isBlack(*(BoardState + Coord[0] + Coord[1] * 8));
-
-    for (int i = 0; i < 4; i++) {
-        ActiveCoord[0] = Coord[0];
-        ActiveCoord[1] = Coord[1];
-        int steps = 1;
-        ActiveCoord[0] += StepsToTake[i * 2 + 0];
-        ActiveCoord[1] += StepsToTake[i * 2 + 1];
-        while (IsLegitCoordinate(ActiveCoord) && *(BoardState + ActiveCoord[0] + ActiveCoord[1] * 8) == EMPTY) {
-            ActiveCoord[0] += StepsToTake[i * 2 + 0];
-            ActiveCoord[1] += StepsToTake[i * 2 + 1];
-            steps++;
-        }
-
-        if (!IsLegitCoordinate(ActiveCoord) || IsWhite) {
-            ActiveCoord[0] -= StepsToTake[i * 2 + 0];
-            ActiveCoord[1] -= StepsToTake[i * 2 + 1];
-            steps--;
-        }
-
-        if (steps == 0) {
-            continue;
-        }
-
-        char **NewList = NULL;
-        if (Moves == NULL) {
-            Moves = malloc(sizeof(char*) * steps);
-            *NumberOfMoves = steps;
-            NewList = Moves;
-        }else {
-            *NumberOfMoves += steps;
-            NewList = realloc(Moves, sizeof(char*) * *NumberOfMoves);
-
-        }
-
-        if (NewList == NULL) {
-            fprintf(stderr, "Memory allocation failed %s");
-            exit(1);
-        }
-
-        Moves = NewList;
-
-
-
-        while (steps > 0) {
-            Moves[*NumberOfMoves - steps] = malloc(sizeof(char) * 6);
-            Moves[*NumberOfMoves - steps][0] = BasicMove[0];
-            Moves[*NumberOfMoves - steps][1] = BasicMove[1];
-            Moves[*NumberOfMoves - steps][2] = BasicMove[2];
-            Moves[*NumberOfMoves - steps][3] = Letters[ActiveCoord[0]];
-            Moves[*NumberOfMoves - steps][4] = (char)(ActiveCoord[1] + 0x31);
-            Moves[*NumberOfMoves - steps][5] = '\0';
-
-            printf("\n%s\n", Moves[*NumberOfMoves - steps]);
-
-            ActiveCoord[0] -= StepsToTake[i * 2 + 0];
-            ActiveCoord[1] -= StepsToTake[i * 2 + 1];
-            steps--;
-        }
-    }
-
-    return Moves;
+void GetBishopMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char **FoundMoves) {
+    int const PossibleMoves[8] = {-1, -1, 1, -1, 1, 1, -1, 1};
+    int const MovesSize = 4;
+    GetMoves(BoardState, Coord, NumberOfMoves, 'B', PossibleMoves, false, MovesSize, FoundMoves);
 }
 
 bool DoBishopMove(enum Piece *Board, char Move[5], bool IsWhite) {

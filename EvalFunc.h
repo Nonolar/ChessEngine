@@ -24,6 +24,7 @@ enum Piece {
 };
 bool SquareUnderAttack(enum Piece const *board, int const *Coord, bool CheckForWhite);
 bool IsCheck(enum Piece const *board, bool const White);
+void GetAllMoves(enum Piece *BoardState, bool White);
 float Evaluate(enum Piece *Board);
 bool isBlack(enum Piece piece);
 #endif //EVALFUNC_H
