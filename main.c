@@ -124,7 +124,7 @@ void RenderBoard(enum Piece *Board) {
     printf("+-+-+-+-+-+-+-+-+\n a b c d e f g h\n");
 }
 
-bool PlayOneRound(enum Piece *Board, bool WhiteRound) {
+bool PlayOneRound(enum Piece *Board, bool WhiteRound, bool *DoBot) {
     if (WhiteRound) {
         printf("Input white move: ");
     }else {
@@ -137,6 +137,11 @@ bool PlayOneRound(enum Piece *Board, bool WhiteRound) {
     //system("clear");
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
+
+    if (Move[0] == 'Y') {
+        *DoBot = true;
+        return false;
+    }
 
     if (!ProcessMove(Board, Move, WhiteRound)) {
         printf("Invalid move %s\n", Move);
@@ -178,7 +183,7 @@ int main(void) {
     while (!GameOver(Board)) {
         if (DoWhiteRound && !whiteBot) {
             RemoveEnPassant(Board, true);
-            DoBlackRound = PlayOneRound(Board, true);
+            DoBlackRound = PlayOneRound(Board, true, &whiteBot);
             RenderBoard(Board);
             evauluation = Evaluate(Board);
             printf("Evaluation: %f\n", evauluation);
@@ -196,7 +201,7 @@ int main(void) {
         }
         if (DoBlackRound && !blackBot) {
             RemoveEnPassant(Board, false);
-            DoWhiteRound =  PlayOneRound(Board, false);
+            DoWhiteRound =  PlayOneRound(Board, false, &blackBot);
             RenderBoard(Board);
             evauluation = Evaluate(Board);
             printf("Evaluation: %f\n", evauluation);
