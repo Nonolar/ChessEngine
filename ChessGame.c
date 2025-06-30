@@ -151,7 +151,7 @@ bool CharIsPiece(char const C) {
 }
 
 //This should work for every piece except for pawns
-void GetMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char const Piece, int const *StepsToTake, bool const OneMove, int MovesSize, char **Moves) {
+void GetMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char const Piece, int const *StepsToTake, bool const OneMove, int MovesSize, char ***Moves) {
 
     char const *Letters = "abcdefgh";
     char BasicMove[4];
@@ -188,13 +188,13 @@ void GetMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves
         }
 
         char **NewList = NULL;
-        if (Moves == NULL) {
-            Moves = malloc(sizeof(char*) * steps);
-            *NumberOfMoves = steps;
-            NewList = Moves;
+        if (*Moves == NULL) {
+            *Moves = malloc(sizeof(char*) * steps);
+            *NumberOfMoves += steps;
+            NewList = *Moves;
         }else {
             *NumberOfMoves += steps;
-            NewList = realloc(Moves, sizeof(char*) * *NumberOfMoves);
+            NewList = realloc(*Moves, sizeof(char*) * (*NumberOfMoves));
 
         }
 
@@ -203,20 +203,20 @@ void GetMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves
             exit(1);
         }
 
-        Moves = NewList;
+        *Moves = NewList;
 
 
 
         while (steps > 0) {
-            Moves[*NumberOfMoves - steps] = malloc(sizeof(char) * 6);
-            Moves[*NumberOfMoves - steps][0] = BasicMove[0];
-            Moves[*NumberOfMoves - steps][1] = BasicMove[1];
-            Moves[*NumberOfMoves - steps][2] = BasicMove[2];
-            Moves[*NumberOfMoves - steps][3] = Letters[ActiveCoord[0]];
-            Moves[*NumberOfMoves - steps][4] = (char)(ActiveCoord[1] + 0x31);
-            Moves[*NumberOfMoves - steps][5] = '\0';
+            (*Moves)[*NumberOfMoves - steps] = malloc(sizeof(char) * 6);
+            (*Moves)[*NumberOfMoves - steps][0] = BasicMove[0];
+            (*Moves)[*NumberOfMoves - steps][1] = BasicMove[1];
+            (*Moves)[*NumberOfMoves - steps][2] = BasicMove[2];
+            (*Moves)[*NumberOfMoves - steps][3] = Letters[ActiveCoord[0]];
+            (*Moves)[*NumberOfMoves - steps][4] = (char)(ActiveCoord[1] + 0x31);
+            (*Moves)[*NumberOfMoves - steps][5] = '\0';
 
-            printf("\n%s\n", Moves[*NumberOfMoves - steps]);
+            //printf("\n%s\n", (*Moves)[*NumberOfMoves - steps]);
 
             ActiveCoord[0] -= StepsToTake[i * 2 + 0];
             ActiveCoord[1] -= StepsToTake[i * 2 + 1];

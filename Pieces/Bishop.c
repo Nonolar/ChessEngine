@@ -93,7 +93,7 @@ int *FindBishop(enum Piece const *Board, int const *NewCoord, bool const White, 
     return BishopCoord;
 }
 
-void GetBishopMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char **FoundMoves) {
+void GetBishopMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char ***FoundMoves) {
     int const PossibleMoves[8] = {-1, -1, 1, -1, 1, 1, -1, 1};
     int const MovesSize = 4;
     GetMoves(BoardState, Coord, NumberOfMoves, 'B', PossibleMoves, false, MovesSize, FoundMoves);

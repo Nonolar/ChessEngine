@@ -45,7 +45,7 @@ int *FindKing(enum Piece *board, int *NewCoord, bool isWhite) {
     return KingCoordinate;
 }
 
-void GetKingMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char **FoundMoves) {
+void GetKingMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char ***FoundMoves) {
     int const PossibleMoves[16] = {-1, -1, 0, -1, 1, -1, 1, 0, 1, 1, 0, 1, -1, 1, -1, 0};
     int const MovesSize = 8;
     GetMoves(BoardState, Coord, NumberOfMoves, 'K', PossibleMoves, true, MovesSize, FoundMoves);

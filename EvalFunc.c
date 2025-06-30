@@ -153,8 +153,8 @@ int GetPieceScore(enum Piece piece) {
     }
 }
 
-void GetMoveSwitchBox(enum Piece *board, int *Coord,  enum Piece foundPiece, char **FoundMoves, int *NumberOfMoves) {
-    enum Types ActiveType = PieceToType(foundPiece);
+void GetMoveSwitchBox(enum Piece const *board, int const *Coord,  enum Piece const foundPiece, char ***FoundMoves, int *NumberOfMoves) {
+    enum Types const ActiveType = PieceToType(foundPiece);
     switch (ActiveType) {
         case BISHOP:
             GetBishopMoves(board, Coord, NumberOfMoves, FoundMoves);
@@ -168,8 +168,15 @@ void GetMoveSwitchBox(enum Piece *board, int *Coord,  enum Piece foundPiece, cha
         case KNIGHT:
             GetKnightMoves(board, Coord, NumberOfMoves, FoundMoves);
             break;
+        case QUEEN:
+            GetQueenMoves(board, Coord, NumberOfMoves, FoundMoves);
+            break;
+        case PAWN:
+            GetPawnMoves(board, Coord, NumberOfMoves, FoundMoves);
+            break;
         default:
             printf("Somethig wen't wrong\n");
+            break;
     }
 }
 
@@ -178,16 +185,28 @@ void GetAllMoves(enum Piece *BoardState, bool White) {
     int NumberOfMoves = 0;
     //Loop through all pieces and get the moves for the corresponding piece
     for (int i = 0; i < SIDE_lENGHT * SIDE_lENGHT; i++) {
-        enum Piece activePiece = *(BoardState + i);
+        enum Piece const activePiece = *(BoardState + i);
         if (!SameColor(White, activePiece)) {
             continue;
         }
 
         int Coordinate[2] = {i % 8, (i - i % 8) / 8};
 
-        GetMoveSwitchBox(BoardState, Coordinate, activePiece, moves, &NumberOfMoves);
+        GetMoveSwitchBox(BoardState, Coordinate, activePiece, &moves, &NumberOfMoves);
     }
 
+    printf("Number of moves %d\n", NumberOfMoves);
+
+    for (int i = 0; i < NumberOfMoves; i++) {
+        printf("move nr. %d: %s\n", i + 1, moves[i]);
+    }
+
+    if (moves != NULL) {
+        for (int i = 0; i < NumberOfMoves; i++) {
+            free(moves[i]);
+        }
+        free(moves);
+    }
 }
 
 float getEvalScorePiece(enum Piece *piece) {

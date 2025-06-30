@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <stdio.h>
 #include "Pawn.h"
 
 bool CorrectMovement(int const NewCoord[], int const OldCoord[]) {
@@ -74,6 +75,147 @@ bool Promote(enum Piece *board, int const *OldCoord, int const *NewCoord, char c
     *(board + NewCoord[0] + NewCoord[1] * SIDE_lENGHT) = newPiece;
 
     return true;
+}
+
+void GetPawnMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char ***FoundMoves) {
+    char const *Letters = "abcdefgh";
+    char const BasicMove = Letters[Coord[0]];
+
+
+    int ActiveCoord[2] = {Coord[0], Coord[1]};
+
+    bool const IsWhite = !isBlack(*(BoardState + Coord[0] + Coord[1] * 8));
+
+    int const DeltaRank = IsWhite ? 1 : -1;
+
+    bool CanMove = *(BoardState + ActiveCoord[0] + (ActiveCoord[1] + DeltaRank) * SIDE_lENGHT) == EMPTY;
+    bool CanMoveTwo = CanMove && (IsWhite ? Coord[1] == 1 : Coord[1] == 6) && *(BoardState + ActiveCoord[0] + (ActiveCoord[1] + DeltaRank * 2) * SIDE_lENGHT) == EMPTY ;
+
+    enum Piece oppositeEnPassant = IsWhite ? B_PAWN_EN : W_PAWN_EN;
+
+    bool EnPassantRight = *(BoardState + ActiveCoord[0] + 1 + ActiveCoord[1] * 8) == oppositeEnPassant;
+    bool EnPassantLeft = *(BoardState + ActiveCoord[0] - 1 + ActiveCoord[1] * 8) == oppositeEnPassant;
+
+    enum Piece UpLeft = *(BoardState + ActiveCoord[0] - 1 + (ActiveCoord[1] + DeltaRank) * 8);
+    enum Piece UpRight = *(BoardState + ActiveCoord[0] + 1 + (ActiveCoord[1] + DeltaRank) * 8);
+
+    bool CaptureRight = UpRight != EMPTY && !SameColor(IsWhite, UpRight);
+    bool CaptureLeft = UpLeft != EMPTY && !SameColor(IsWhite, UpLeft);
+
+    bool Promotion = (IsWhite && ActiveCoord[1] + DeltaRank == 7) || (!IsWhite && ActiveCoord[1] + DeltaRank == 0);
+
+    int newMoves = CanMove + CanMoveTwo + EnPassantRight + EnPassantLeft + CaptureLeft + CaptureRight;
+    newMoves = Promotion ? 4 * newMoves : newMoves;
+
+    if (newMoves == 0) {
+        return;
+    }
+
+    char **NewList = NULL;
+    if (*FoundMoves == NULL) {
+        *FoundMoves = malloc(sizeof(char*) * newMoves);
+        *NumberOfMoves += newMoves;
+        NewList = *FoundMoves;
+    }else {
+        *NumberOfMoves += newMoves;
+        NewList = realloc(*FoundMoves, sizeof(char*) * (*NumberOfMoves));
+
+    }
+
+    if (NewList == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        exit(1);
+    }
+
+    *FoundMoves = NewList;
+
+    //I don't feel like doing this dynamically so I will do it manually
+
+    char const *PromotionPieces = "QRBN";
+
+    if (CanMove && !Promotion) {
+        (*FoundMoves)[*NumberOfMoves - newMoves] = malloc(sizeof(char) * 4);
+        (*FoundMoves)[*NumberOfMoves - newMoves][0] = BasicMove;
+        (*FoundMoves)[*NumberOfMoves - newMoves][1] = Letters[ActiveCoord[0]];
+        (*FoundMoves)[*NumberOfMoves - newMoves][2] = (char)((ActiveCoord[1] + DeltaRank) + 0x31);
+        (*FoundMoves)[*NumberOfMoves - newMoves][3] = '\0';
+        newMoves--;
+    }else if (CanMove && Promotion) {
+        for (int i = 0; i < 4; i++) {
+            (*FoundMoves)[*NumberOfMoves - newMoves] = malloc(sizeof(char) * 5);
+            (*FoundMoves)[*NumberOfMoves - newMoves][0] = BasicMove;
+            (*FoundMoves)[*NumberOfMoves - newMoves][1] = Letters[ActiveCoord[0]];
+            (*FoundMoves)[*NumberOfMoves - newMoves][2] = (char)((ActiveCoord[1] + DeltaRank) + 0x31);
+            (*FoundMoves)[*NumberOfMoves - newMoves][3] = PromotionPieces[i];
+            (*FoundMoves)[*NumberOfMoves - newMoves][4] = '\0';
+            newMoves--;
+        }
+    }
+
+    if (CanMoveTwo) {
+        (*FoundMoves)[*NumberOfMoves - newMoves] = malloc(sizeof(char) * 4);
+        (*FoundMoves)[*NumberOfMoves - newMoves][0] = BasicMove;
+        (*FoundMoves)[*NumberOfMoves - newMoves][1] = Letters[ActiveCoord[0]];
+        (*FoundMoves)[*NumberOfMoves - newMoves][2] = (char)((ActiveCoord[1] +  DeltaRank * 2) + 0x31);
+        (*FoundMoves)[*NumberOfMoves - newMoves][3] = '\0';
+        newMoves--;
+    }
+
+    if (EnPassantLeft) {
+        (*FoundMoves)[*NumberOfMoves - newMoves] = malloc(sizeof(char) * 4);
+        (*FoundMoves)[*NumberOfMoves - newMoves][0] = BasicMove;
+        (*FoundMoves)[*NumberOfMoves - newMoves][1] = Letters[ActiveCoord[0] - 1];
+        (*FoundMoves)[*NumberOfMoves - newMoves][2] = (char)((ActiveCoord[1] + DeltaRank) + 0x31);
+        (*FoundMoves)[*NumberOfMoves - newMoves][3] = '\0';
+        newMoves--;
+    }
+
+    if (EnPassantRight) {
+        (*FoundMoves)[*NumberOfMoves - newMoves] = malloc(sizeof(char) * 4);
+        (*FoundMoves)[*NumberOfMoves - newMoves][0] = BasicMove;
+        (*FoundMoves)[*NumberOfMoves - newMoves][1] = Letters[ActiveCoord[0] + 1];
+        (*FoundMoves)[*NumberOfMoves - newMoves][2] = (char)((ActiveCoord[1] + DeltaRank) + 0x31);
+        (*FoundMoves)[*NumberOfMoves - newMoves][3] = '\0';
+        newMoves--;
+    }
+
+    if (CaptureLeft && !Promotion) {
+        (*FoundMoves)[*NumberOfMoves - newMoves] = malloc(sizeof(char) * 4);
+        (*FoundMoves)[*NumberOfMoves - newMoves][0] = BasicMove;
+        (*FoundMoves)[*NumberOfMoves - newMoves][1] = Letters[ActiveCoord[0] - 1];
+        (*FoundMoves)[*NumberOfMoves - newMoves][2] = (char)((ActiveCoord[1] + DeltaRank) + 0x31);
+        (*FoundMoves)[*NumberOfMoves - newMoves][3] = '\0';
+        newMoves--;
+    }else if (CaptureLeft && Promotion) {
+        for (int i = 0; i < 4; i++) {
+            (*FoundMoves)[*NumberOfMoves - newMoves] = malloc(sizeof(char) * 5);
+            (*FoundMoves)[*NumberOfMoves - newMoves][0] = BasicMove;
+            (*FoundMoves)[*NumberOfMoves - newMoves][1] = Letters[ActiveCoord[0] - 1];
+            (*FoundMoves)[*NumberOfMoves - newMoves][2] = (char)((ActiveCoord[1] + DeltaRank) + 0x31);
+            (*FoundMoves)[*NumberOfMoves - newMoves][3] = PromotionPieces[i];
+            (*FoundMoves)[*NumberOfMoves - newMoves][4] = '\0';
+            newMoves--;
+        }
+    }
+
+    if (CaptureRight && !Promotion) {
+        (*FoundMoves)[*NumberOfMoves - newMoves] = malloc(sizeof(char) * 4);
+        (*FoundMoves)[*NumberOfMoves - newMoves][0] = BasicMove;
+        (*FoundMoves)[*NumberOfMoves - newMoves][1] = Letters[ActiveCoord[0] + 1];
+        (*FoundMoves)[*NumberOfMoves - newMoves][2] = (char)((ActiveCoord[1] + DeltaRank) + 0x31);
+        (*FoundMoves)[*NumberOfMoves - newMoves][3] = '\0';
+        newMoves--;
+    }else if (CaptureRight && Promotion) {
+        for (int i = 0; i < 4; i++) {
+            (*FoundMoves)[*NumberOfMoves - newMoves] = malloc(sizeof(char) * 5);
+            (*FoundMoves)[*NumberOfMoves - newMoves][0] = BasicMove;
+            (*FoundMoves)[*NumberOfMoves - newMoves][1] = Letters[ActiveCoord[0] + 1];
+            (*FoundMoves)[*NumberOfMoves - newMoves][2] = (char)((ActiveCoord[1] + DeltaRank) + 0x31);
+            (*FoundMoves)[*NumberOfMoves - newMoves][3] = PromotionPieces[i];
+            (*FoundMoves)[*NumberOfMoves - newMoves][4] = '\0';
+            newMoves--;
+        }
+    }
 }
 
 bool DoPawnMove(enum Piece *Board, char move[5], bool WhiteTurn) {
