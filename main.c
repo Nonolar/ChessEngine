@@ -171,11 +171,11 @@ int main(void) {
 
 
     bool whiteBot = false;
-    bool blackBot = true;
+    bool blackBot = false;
 
     bool DoWhiteRound = true;
     bool DoBlackRound = true;
-    while (!GameIsOver(Board)) {
+    while (!GameOver(Board)) {
         if (DoWhiteRound && !whiteBot) {
             RemoveEnPassant(Board, true);
             DoBlackRound = PlayOneRound(Board, true);
@@ -191,7 +191,9 @@ int main(void) {
             evauluation = Evaluate(Board);
             printf("Evaluation: %f\n", evauluation);
         }
-        //char ch = getchar();
+        if (GameOver(Board)) {
+            continue;
+        }
         if (DoBlackRound && !blackBot) {
             RemoveEnPassant(Board, false);
             DoWhiteRound =  PlayOneRound(Board, false);
@@ -209,6 +211,16 @@ int main(void) {
         }
 
 
+    }
+
+    if (WhiteWin(Board)) {
+        printf("WHITE WON!");
+    }else if (BlackWin(Board)) {
+        printf("BLACK WON!");
+    }else if (staleMate(Board)) {
+        printf("Stalemate :(");
+    }else {
+        printf("Something mysterious occurred, even though it should not have");
     }
 
     return 0;

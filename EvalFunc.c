@@ -245,14 +245,130 @@ float Evaluate(enum Piece *Board) {
     return Evaluation;
 }
 
-bool GameOver(enum Piece const *board, bool CheckWhiteWin) {
-    //TODO
-    //Game over logic
+bool WhiteWin(enum Piece const *board) {
+    char **AvailableMoves = NULL;
+    int NumberOfMoves = 0;
+    bool CanMoveBlack = false;
 
-    //TODO
-    //White win logic
+    GetAllMoves(board, false, &AvailableMoves, &NumberOfMoves);
 
-    return false;
+    enum Piece *SimulatedBoard = (enum Piece*)malloc(sizeof(enum Piece) * 64);
+
+    for (int i = 0; i < NumberOfMoves && !CanMoveBlack; i++) {
+        memcpy(SimulatedBoard, board, sizeof(enum Piece) * 64);
+        bool const legal = ProcessMove(SimulatedBoard, AvailableMoves[i], false);
+
+        if (legal) {
+            CanMoveBlack = true;
+        }
+    }
+
+    bool isCheck = IsCheck(board, false);
+    return !CanMoveBlack && isCheck;
+}
+
+bool BlackWin(enum Piece const *board) {
+    char **AvailableMoves = NULL;
+    int NumberOfMoves = 0;
+    GetAllMoves(board, true, &AvailableMoves, &NumberOfMoves);
+
+    enum Piece *SimulatedBoard = (enum Piece*)malloc(sizeof(enum Piece) * 64);
+    bool CanMoveWhite = false;
+
+    for (int i = 0; i < NumberOfMoves && !CanMoveWhite; i++) {
+        memcpy(SimulatedBoard, board, sizeof(enum Piece) * 64);
+        bool const legal = ProcessMove(SimulatedBoard, AvailableMoves[i], true);
+
+        if (legal) {
+            CanMoveWhite = true;
+        }
+    }
+
+    bool isCheck = IsCheck(board, true);
+    return !CanMoveWhite && isCheck;
+}
+
+bool staleMate(enum Piece const *board) {
+    char **AvailableMoves = NULL;
+    int NumberOfMoves = 0;
+    GetAllMoves(board, true, &AvailableMoves, &NumberOfMoves);
+
+    enum Piece *SimulatedBoard = (enum Piece*)malloc(sizeof(enum Piece) * 64);
+    bool CanMoveWhite = false;
+
+    for (int i = 0; i < NumberOfMoves && !CanMoveWhite; i++) {
+        memcpy(SimulatedBoard, board, sizeof(enum Piece) * 64);
+        bool const legal = ProcessMove(SimulatedBoard, AvailableMoves[i], true);
+
+        if (legal) {
+            CanMoveWhite = true;
+        }
+    }
+
+
+
+    bool CanMoveBlack = false;
+
+    GetAllMoves(board, false, &AvailableMoves, &NumberOfMoves);
+
+
+    for (int i = 0; i < NumberOfMoves && !CanMoveBlack; i++) {
+        memcpy(SimulatedBoard, board, sizeof(enum Piece) * 64);
+        bool const legal = ProcessMove(SimulatedBoard, AvailableMoves[i], false);
+
+        if (legal) {
+            CanMoveBlack = true;
+        }
+    }
+
+
+    bool isCheck = IsCheck(board, true) || IsCheck(board, false);
+    return !CanMoveWhite && !CanMoveBlack && !isCheck;
+}
+
+bool GameOver(enum Piece const *board) {
+    char **AvailableMoves = NULL;
+    int NumberOfMoves = 0;
+    GetAllMoves(board, true, &AvailableMoves, &NumberOfMoves);
+
+    enum Piece *SimulatedBoard = (enum Piece*)malloc(sizeof(enum Piece) * 64);
+    bool CanMoveWhite = false;
+
+    for (int i = 0; i < NumberOfMoves && !CanMoveWhite; i++) {
+        memcpy(SimulatedBoard, board, sizeof(enum Piece) * 64);
+        bool const legal = ProcessMove(SimulatedBoard, AvailableMoves[i], true);
+
+        if (legal) {
+            CanMoveWhite = true;
+        }
+    }
+
+    if (!CanMoveWhite) {
+        return true;
+    }
+
+    bool CanMoveBlack = false;
+
+    free(AvailableMoves);
+    NumberOfMoves = 0;
+    AvailableMoves = NULL;
+    GetAllMoves(board, false, &AvailableMoves, &NumberOfMoves);
+
+
+    for (int i = 0; i < NumberOfMoves && !CanMoveBlack; i++) {
+        memcpy(SimulatedBoard, board, sizeof(enum Piece) * 64);
+        bool const legal = ProcessMove(SimulatedBoard, AvailableMoves[i], false);
+
+        if (legal) {
+            CanMoveBlack = true;
+        }
+    }
+
+    if (!CanMoveBlack) {
+        return true;
+    }
+
+    return !CanMoveWhite && !CanMoveBlack;
 }
 
 struct move Minimax(enum Piece *board, int depth, bool MaxPlayer, float alpha, float beta) {
@@ -263,8 +379,13 @@ struct move Minimax(enum Piece *board, int depth, bool MaxPlayer, float alpha, f
         return Nothing;
     }
 
-    if (GameOver(board, false)) {
-        float evaluation = GameOver(board, true) ? 100000.0f : -100000.0f;
+    if (GameOver(board)) {
+        float evaluation = 0;
+        if (WhiteWin(board)) {
+            evaluation = 90000000000.0f;
+        }else if (BlackWin(board)) {
+            evaluation = -90000000000.0f;
+        }
         struct move const Nothing = {"\0", evaluation};
         return Nothing;
     }

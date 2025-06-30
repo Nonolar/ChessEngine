@@ -127,8 +127,14 @@ bool DoRookMove(enum Piece *Board, char *move, bool WhitePlay) {
     }
 
     if (CompleteInfo && confirmMove(NewCoord, OrigCoord) && RookMoveNoObstacle(Board, &NewCoord[0], &OrigCoord[0])) {
+        enum Piece previousPiece = *(Board + NewCoord[0] + NewCoord[1] * 8);
         *(Board + NewCoord[0] + NewCoord[1] * 8) = ActivePiece;
         *(Board + OrigCoord[0] + OrigCoord[1] * 8) = EMPTY;
+        if (IsCheck(Board, WhitePlay)) {
+            *(Board + NewCoord[0] + NewCoord[1] * 8) = previousPiece;
+            *(Board + OrigCoord[0] + OrigCoord[1] * 8) = ActivePiece;
+            return false;
+        }
         return true;
     }else if (CompleteInfo) {
         return false;

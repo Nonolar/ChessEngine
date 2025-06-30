@@ -33,5 +33,9 @@ bool IsCheck(enum Piece const *board, bool const White);
 void GetAllMoves(enum Piece *BoardState, bool White, char ***moves, int *NumberOfMoves);
 float Evaluate(enum Piece *Board);
 bool isBlack(enum Piece piece);
+bool WhiteWin(enum Piece const *board);
+bool BlackWin(enum Piece const *board);
+bool staleMate(enum Piece const *board);
+bool GameOver(enum Piece const *board);
 struct move Minimax(enum Piece *board, int depth, bool MaxPlayer, float alpha, float beta);
 #endif //EVALFUNC_H

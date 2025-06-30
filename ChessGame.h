@@ -24,6 +24,5 @@ bool IsTileLight(int Coordinate[]);
 bool SameColor(bool White, enum Piece Comparand);
 void GetMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char const Piece, int const *StepsToTake, bool const OneMove, int MovesSize, char ***Moves);
 bool ProcessMove(enum Piece *Board, char *move, bool WhitePlay);
-bool GameIsOver(enum Piece *Board);
 
 #endif //CHESSGAME_H

@@ -254,6 +254,3 @@ bool ProcessMove(enum Piece *Board, char *move, bool WhitePlay) {
 }
 
 
-bool GameIsOver(enum Piece *Board) {
- return false;
-}
