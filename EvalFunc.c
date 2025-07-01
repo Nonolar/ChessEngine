@@ -20,35 +20,35 @@ bool SquareUnderAttack(enum Piece const *board, int const *Coord, bool CheckForW
         free(AttackingPieceCoord);
         return true;
     }
-    free(AttackingPieceCoord);
+    //free(AttackingPieceCoord);
 
     AttackingPieceCoord = FindKnight(board, Coord, !CheckForWhite, NOT_FOUND);
     if (IsLegitCoordinate(AttackingPieceCoord)) {
         free(AttackingPieceCoord);
         return true;
     }
-    free(AttackingPieceCoord);
+    //free(AttackingPieceCoord);
 
     AttackingPieceCoord = FindBishop(board, Coord, !CheckForWhite, NOT_FOUND);
     if (IsLegitCoordinate(AttackingPieceCoord)) {
         free(AttackingPieceCoord);
         return true;
     }
-    free(AttackingPieceCoord);
+    //free(AttackingPieceCoord);
 
     AttackingPieceCoord = FindKing(board, Coord, !CheckForWhite);
     if (IsLegitCoordinate(AttackingPieceCoord)) {
         free(AttackingPieceCoord);
         return true;
     }
-    free(AttackingPieceCoord);
+    //free(AttackingPieceCoord);
 
     AttackingPieceCoord = FindQueen(board, Coord, CheckForWhite ? B_QUEEN : W_QUEEN, NOT_FOUND);
     if (IsLegitCoordinate(AttackingPieceCoord)) {
         free(AttackingPieceCoord);
         return true;
     }
-    free(AttackingPieceCoord);
+    //free(AttackingPieceCoord);
 
     AttackingPieceCoord = malloc(sizeof(int) * 2);
     FindSinglePawnCapture(board, Coord, AttackingPieceCoord, !CheckForWhite);
@@ -209,37 +209,91 @@ void GetAllMoves(enum Piece *BoardState, bool White, char ***moves, int *NumberO
 
 }
 
+typedef struct {
+    bool white_attack[64];
+    bool black_attack[64];
+} Attacking;
 
+Attacking* FindAttackedSquares(enum Piece *board) {
+    Attacking *map = malloc(sizeof(Attacking));
+    memset(map, 0, sizeof(Attacking));
+    for (int i = 0; i < 64; i++) {
+        if (board[i] != EMPTY) {
+            bool PieceIsWhite = !isBlack(*(board + i));
+            int Coord[2] = {i%8, (i - i%8)/8};
+            char **Moves = NULL;
+            int MovesFound = 0;
+            GetMoveSwitchBox(board, &Coord[0], board[i], &Moves, &MovesFound);
 
+            for (int j = 0; j < MovesFound; j++) {
+                bool const IsPawn = !CharIsPiece(Moves[j][0]);
+                if (IsPawn && Moves[j][0] != Moves[j][1]) {
+                    int const File = LetterToCoordinate(Moves[j][1]);
+                    int const Rank = (int)(Moves[j][2] + 0x31);
+                    int const AttackedSquare = File + Rank * 8;
+                    (map)->white_attack[AttackedSquare] = PieceIsWhite ? true : (map)->white_attack[AttackedSquare];
+                    (map)->black_attack[AttackedSquare] = !PieceIsWhite ? true : (map)->white_attack[AttackedSquare];;
+                }else {
+                    int const file = LetterToCoordinate(Moves[j][3]);
+                    int const Rank = (int)(Moves[j][4] + 0x31);
+                    int const AttackedSquare = file + Rank * 8;
+                    (map)->white_attack[AttackedSquare] = PieceIsWhite ? true : (map)->white_attack[AttackedSquare];
+                    (map)->black_attack[AttackedSquare] = !PieceIsWhite ? true : (map)->white_attack[AttackedSquare];;
+                }
+            }
+        }
+    }
+    return map;
+}
 
-float getEvalScorePiece(enum Piece *piece) {
+float getEvalScorePiece(enum Piece *Board, int *Coord, Attacking* AttackMap) {
+    enum Piece *piece = (Board + Coord[0] + Coord[1] * SIDE_lENGHT);
+    bool isWhite = !isBlack(*piece);
     if (*piece == EMPTY) {
         return 0.0f;
     }
 
-    if (isBlack(*piece)) {
-        float Score = (float)GetPieceScore(*piece);
+    float Score = (float)GetPieceScore(*piece);
+    int Offset = Coord[0] + Coord[1] * SIDE_lENGHT;
+    if (isWhite && AttackMap->black_attack[Offset] || !isWhite && AttackMap->white_attack[Offset]) {
+        Score = Score * 0.5f;
+    }
+
+    if (!isWhite) {
+
         return Score * -1.0f;
     }
 
-    return (float)GetPieceScore(*piece);
+    return Score;
 }
 
 float CountPieces(enum Piece *Board) {
+    Attacking* attackMap = FindAttackedSquares(Board);
     float result = 0.0f;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            result += getEvalScorePiece((Board + i * 8 + j));
+            int Coord[2] = {j, i};
+            float const change = getEvalScorePiece(Board, &Coord[0], attackMap);
+            if (isBlack(*(Board + j + i * 8 )) && change != 0) {
+                result -= 0.05f * (float)(7 - (i));
+            }else if (change != 0) {
+                result += 0.05f * (float)i;
+            }
+            result += change;
         }
     }
-
+    free(attackMap);
     return result;
 }
 
 float Evaluate(enum Piece *Board) {
 
     float Evaluation = 0;
-
+    if (IsCheck(Board, true)) {
+        Evaluation -= 4.0f;
+    }else if (IsCheck(Board, false)) {
+        Evaluation += 4.0f;
+    }
     Evaluation += CountPieces(Board);
 
     return Evaluation;
@@ -262,7 +316,7 @@ bool WhiteWin(enum Piece const *board) {
             CanMoveBlack = true;
         }
     }
-
+    free(AvailableMoves);
     bool isCheck = IsCheck(board, false);
     return !CanMoveBlack && isCheck;
 }
@@ -283,7 +337,7 @@ bool BlackWin(enum Piece const *board) {
             CanMoveWhite = true;
         }
     }
-
+    free(AvailableMoves);
     bool isCheck = IsCheck(board, true);
     return !CanMoveWhite && isCheck;
 }
@@ -308,7 +362,7 @@ bool staleMate(enum Piece const *board) {
 
 
     bool CanMoveBlack = false;
-
+    free(AvailableMoves);
     GetAllMoves(board, false, &AvailableMoves, &NumberOfMoves);
 
 
@@ -321,7 +375,7 @@ bool staleMate(enum Piece const *board) {
         }
     }
 
-
+    free(AvailableMoves);
     bool isCheck = IsCheck(board, true) || IsCheck(board, false);
     return !CanMoveWhite && !CanMoveBlack && !isCheck;
 }
@@ -367,7 +421,7 @@ bool GameOver(enum Piece const *board) {
     if (!CanMoveBlack) {
         return true;
     }
-
+    free(AvailableMoves);
     return !CanMoveWhite && !CanMoveBlack;
 }
 

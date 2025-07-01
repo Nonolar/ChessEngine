@@ -1,2 +1,4 @@
-1. For every enemy -Piece score
-2. For every of your pieces +Piece score
+1. Every pieces score is added to the score X
+2. Checks are valued at a score of 4 (will sacrifice either bishop or knight for a check) X
+3. Each attacked piece get half it scored removed from the eval of that side
+4. Every white piece from the first rank gets +0.05 for every rank away, likewise black pieces get -0.05 for every rank away from the eight X

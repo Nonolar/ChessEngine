@@ -21,6 +21,7 @@ enum Piece LetterToPiece(char letter, bool White);
 int LetterToCoordinate(char letter);
 bool IsLegitCoordinate(int const *Coordinate);
 bool IsTileLight(int Coordinate[]);
+bool CharIsPiece(char const C);
 bool SameColor(bool White, enum Piece Comparand);
 void GetMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves, char const Piece, int const *StepsToTake, bool const OneMove, int MovesSize, char ***Moves);
 bool ProcessMove(enum Piece *Board, char *move, bool WhitePlay);
