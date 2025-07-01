@@ -228,5 +228,7 @@ int main(void) {
         printf("Something mysterious occurred, even though it should not have");
     }
 
+    char c = (char)getchar();
+    printf("Ending process %c", c);
     return 0;
 }

@@ -392,7 +392,7 @@ struct move Minimax(enum Piece *board, int depth, bool MaxPlayer, float alpha, f
     int NumberOfChildren = 0;
     GetAllMoves(board, MaxPlayer, &AvailableMoves, &NumberOfChildren);
     enum Piece *SimulatedBoard = (enum Piece*)malloc(sizeof(enum Piece) * 64);
-    struct move BestMove = {"\0", MaxPlayer ? -1000000.0f : 100000.0f};
+    struct move BestMove = {"\0", MaxPlayer ? -900000000000.0f : 900000000000.0f};
     for (int i = 0; i < NumberOfChildren; i++) {
 
         memcpy(SimulatedBoard, board, sizeof(enum Piece) * 64);
