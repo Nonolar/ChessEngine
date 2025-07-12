@@ -30,7 +30,7 @@ struct move {
 
 bool SquareUnderAttack(enum Piece const *board, int const *Coord, bool CheckForWhite);
 bool IsCheck(enum Piece const *board, bool const White);
-void GetAllMoves(enum Piece *BoardState, bool White, char ***moves, int *NumberOfMoves);
+void GetAllMoves(enum Piece const *BoardState, bool White, char ***moves, int *NumberOfMoves);
 float Evaluate(enum Piece *Board);
 bool isBlack(enum Piece piece);
 bool WhiteWin(enum Piece const *board);

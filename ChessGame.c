@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include "EvalFunc.h"
 #include "ChessGame.h"
+
+#include <string.h>
+
 #include "Pieces/Pawn.h"
 #include "Pieces/Rook.h"
 #include "Pieces/Bishop.h"
@@ -165,12 +168,16 @@ void GetMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves
 
     bool const IsWhite = !isBlack(*(BoardState + Coord[0] + Coord[1] * 8));
 
+    enum Piece* placeHolderBoard = malloc(sizeof(enum Piece) * 64);
+    enum Piece const PieceUsed = *(BoardState + Coord[0] + Coord[1] * 8);
+
     for (int i = 0; i < MovesSize; i++) {
         ActiveCoord[0] = Coord[0];
         ActiveCoord[1] = Coord[1];
         int steps = 1;
         ActiveCoord[0] += StepsToTake[i * 2 + 0];
         ActiveCoord[1] += StepsToTake[i * 2 + 1];
+
         while (!OneMove && IsLegitCoordinate(ActiveCoord) && *(BoardState + ActiveCoord[0] + ActiveCoord[1] * 8) == EMPTY) {
             ActiveCoord[0] += StepsToTake[i * 2 + 0];
             ActiveCoord[1] += StepsToTake[i * 2 + 1];
@@ -183,17 +190,50 @@ void GetMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves
             steps--;
         }
 
+
+
         if (steps == 0) {
+            continue;
+        }
+
+        char **NewMoves = malloc(sizeof(char*) * steps);
+        bool *IsValidMove = malloc(sizeof(bool) * steps);
+        int CurrentCoord[2] = {ActiveCoord[0], ActiveCoord[1]};
+        for (int j = 0; j < steps; j++) {
+            memcpy(placeHolderBoard, BoardState, sizeof(enum Piece) * 64);
+            NewMoves[j] = malloc(sizeof(char) * 6);
+            NewMoves[j][0] = BasicMove[0];
+            NewMoves[j][1] = BasicMove[1];
+            NewMoves[j][2] = BasicMove[2];
+            NewMoves[j][3] = Letters[CurrentCoord[0]];
+            NewMoves[j][4] = (char)(CurrentCoord[1] + 0x31);
+            NewMoves[j][5] = '\0';
+
+            CurrentCoord[0] = Coord[0] + (j + 1) * StepsToTake[i * 2 + 0];
+            CurrentCoord[1] = Coord[1] + (j + 1) * StepsToTake[i * 2 + 1];
+
+            IsValidMove[j] = ProcessMove(placeHolderBoard, NewMoves[j], IsWhite);
+        }
+
+
+        int NumberOfNewMoves = 0;
+        for (int j = 0; j < steps; j++) {
+            NumberOfNewMoves += IsValidMove[j];
+        }
+
+        if (NumberOfNewMoves == 0) {
+            free(IsValidMove);
+            free(NewMoves);
             continue;
         }
 
         char **NewList = NULL;
         if (*Moves == NULL) {
-            *Moves = malloc(sizeof(char*) * steps);
-            *NumberOfMoves += steps;
+            *Moves = malloc(sizeof(char*) * NumberOfNewMoves);
+            *NumberOfMoves += NumberOfNewMoves;
             NewList = *Moves;
         }else {
-            *NumberOfMoves += steps;
+            *NumberOfMoves += NumberOfNewMoves;
             NewList = realloc(*Moves, sizeof(char*) * (*NumberOfMoves));
 
         }
@@ -206,23 +246,26 @@ void GetMoves(enum Piece const *BoardState, int const *Coord, int *NumberOfMoves
         *Moves = NewList;
 
 
-
-        while (steps > 0) {
-            (*Moves)[*NumberOfMoves - steps] = malloc(sizeof(char) * 6);
-            (*Moves)[*NumberOfMoves - steps][0] = BasicMove[0];
-            (*Moves)[*NumberOfMoves - steps][1] = BasicMove[1];
-            (*Moves)[*NumberOfMoves - steps][2] = BasicMove[2];
-            (*Moves)[*NumberOfMoves - steps][3] = Letters[ActiveCoord[0]];
-            (*Moves)[*NumberOfMoves - steps][4] = (char)(ActiveCoord[1] + 0x31);
-            (*Moves)[*NumberOfMoves - steps][5] = '\0';
+        int iteration = 0;
+        while (NumberOfNewMoves > 0) {
+            if (IsValidMove[iteration]) {
+                (*Moves)[*NumberOfMoves - NumberOfNewMoves] = NewMoves[iteration];
+                NumberOfNewMoves--;
+            }else {
+                free(NewMoves[iteration]);
+            }
 
             //printf("\n%s\n", (*Moves)[*NumberOfMoves - steps]);
 
             ActiveCoord[0] -= StepsToTake[i * 2 + 0];
             ActiveCoord[1] -= StepsToTake[i * 2 + 1];
-            steps--;
+            iteration++;
         }
+        free(NewMoves);
+        free(IsValidMove);
     }
+
+    free(placeHolderBoard);
 }
 
 
@@ -243,7 +286,9 @@ bool PieceSwitch(enum Piece *Board, char move[5], bool WhitePlay) {
 }
 
 bool ProcessMove(enum Piece *Board, char *move, bool WhitePlay) {
-
+    if (move == NULL) {
+        return false;
+    }
     if (CharIsPiece(*move)) {
         return PieceSwitch(Board, move, WhitePlay);
     }else if (*move == 'O') {

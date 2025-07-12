@@ -187,7 +187,7 @@ void GetMoveSwitchBox(enum Piece const *board, int const *Coord,  enum Piece con
     }
 }
 
-void GetAllMoves(enum Piece *BoardState, bool White, char ***moves, int *NumberOfMoves) {
+void GetAllMoves(enum Piece const *BoardState, bool const White, char ***moves, int *NumberOfMoves) {
     //Loop through all pieces and get the moves for the corresponding piece
     for (int i = 0; i < SIDE_lENGHT * SIDE_lENGHT; i++) {
         enum Piece const activePiece = *(BoardState + i);
@@ -195,7 +195,7 @@ void GetAllMoves(enum Piece *BoardState, bool White, char ***moves, int *NumberO
             continue;
         }
 
-        int Coordinate[2] = {i % 8, (i - i % 8) / 8};
+        int const Coordinate[2] = {i % 8, (i - i % 8) / 8};
 
         GetMoveSwitchBox(BoardState, Coordinate, activePiece, moves, NumberOfMoves);
     }
