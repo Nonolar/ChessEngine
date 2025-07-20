@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ChessGame.h"
 #include "EvalFunc.h"
@@ -124,7 +125,7 @@ void RenderBoard(enum Piece *Board) {
     printf("+-+-+-+-+-+-+-+-+\n a b c d e f g h\n");
 }
 
-bool PlayOneRound(enum Piece *Board, bool WhiteRound, bool *DoBot) {
+bool PlayOneRound(enum Piece *Board, bool WhiteRound, bool *DoBot, enum Piece *Previous, bool *OtherBot) {
     if (WhiteRound) {
         printf("Input white move: ");
     }else {
@@ -138,10 +139,21 @@ bool PlayOneRound(enum Piece *Board, bool WhiteRound, bool *DoBot) {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 
+
+
     if (Move[0] == 'Y') {
         *DoBot = true;
         return false;
+    }else if (Move[0] == 'R') {
+        memcpy(Board, Previous, sizeof(enum Piece) * 64);
+        return false;
+    }else if (Move[0] == 'B') {
+        memcpy(Board, Previous, sizeof(enum Piece) * 64);
+        *OtherBot = false;
+        return false;
     }
+
+    memcpy(Previous, Board, sizeof(enum Piece) * 64);
 
     if (!ProcessMove(Board, Move, WhiteRound)) {
         printf("Invalid move %s\n", Move);
@@ -161,7 +173,8 @@ int main(void) {
 
     setbuf(stdout, 0);
     enum Piece *Board = malloc(sizeof(enum Piece) * 64);
-    //malloc(64*sizeof(enum Piece))
+    enum Piece *PrevWhite = malloc(sizeof(enum Piece) * 64);
+    enum Piece *PrevBlack = malloc(sizeof(enum Piece) * 64);
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             *(Board + i*8 + j) = EMPTY;
@@ -180,10 +193,13 @@ int main(void) {
 
     bool DoWhiteRound = true;
     bool DoBlackRound = true;
+
+    memcpy(PrevWhite, Board, sizeof(enum Piece) * 64);
+    memcpy(PrevBlack, Board, sizeof(enum Piece) * 64);
     while (!GameOver(Board)) {
         if (DoWhiteRound && !whiteBot) {
             RemoveEnPassant(Board, true);
-            DoBlackRound = PlayOneRound(Board, true, &whiteBot);
+            DoBlackRound = PlayOneRound(Board, true, &whiteBot, PrevWhite, &blackBot);
             RenderBoard(Board);
             evauluation = Evaluate(Board);
             printf("Evaluation: %f\n", evauluation);
@@ -201,7 +217,7 @@ int main(void) {
         }
         if (DoBlackRound && !blackBot) {
             RemoveEnPassant(Board, false);
-            DoWhiteRound =  PlayOneRound(Board, false, &blackBot);
+            DoWhiteRound =  PlayOneRound(Board, false, &blackBot, PrevBlack, &whiteBot);
             RenderBoard(Board);
             evauluation = Evaluate(Board);
             printf("Evaluation: %f\n", evauluation);
