@@ -144,10 +144,10 @@ bool PlayOneRound(enum Piece *Board, bool WhiteRound, bool *DoBot, enum Piece *P
     if (Move[0] == 'Y') {
         *DoBot = true;
         return false;
-    }else if (Move[0] == 'R') {
+    }else if (Move[0] == 'X') {
         memcpy(Board, Previous, sizeof(enum Piece) * 64);
         return false;
-    }else if (Move[0] == 'B') {
+    }else if (Move[0] == 'Z') {
         memcpy(Board, Previous, sizeof(enum Piece) * 64);
         *OtherBot = false;
         return false;
